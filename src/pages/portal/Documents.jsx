@@ -1,0 +1,1 @@
+export default function Documents(){return <div><h1 className="text-3xl font-bold">Documents</h1><div className="card mt-6 p-6"><p className="text-sm text-slate-600">Verification and Pre-advice documents are available only through protected API routes.</p></div></div>}

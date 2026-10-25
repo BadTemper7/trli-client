@@ -1,0 +1,6 @@
+import Skeleton from '../ui/Skeleton';
+import {Link} from 'react-router-dom';
+import {ArrowRight,PackageSearch} from 'lucide-react';
+import {clientApi,bookingLabel,statusLabel} from '../../api/client';
+import useClientData from '../../api/useClientData';
+export default function QuickReview(){const {data,loading,error,refresh}=useClientData(clientApi.bookings);const b=data?.bookings?.[0];return <section className="panel review-panel"><div className="review-heading"><div><h2>Quick Review</h2><p>Your latest container</p></div></div>{loading?<Skeleton variant="review"/>:error?<p>{error} <button onClick={refresh}>Retry</button></p>:b?<><div className="review-fields">{[['Container Number',b.containerNumber],['Container Type',`${b.containerSize}FT ${b.containerType}`],['Status',statusLabel(b.status)],['Booking Reference',bookingLabel(b)],['Current Location',b.assignedAreaName||'Not assigned']].map(([label,value])=><div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div><Link className="lime-button review-button" to={`/bookings/${b.id}`}>View Container Details <ArrowRight size={19}/></Link></>:<div className="dashboard-empty"><PackageSearch size={23}/><strong>No container to review</strong><span>Submit a pre-advice to get started.</span><Link to="/pre-advice">Create Pre-Advice <ArrowRight size={14}/></Link></div>}</section>}

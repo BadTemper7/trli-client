@@ -1,0 +1,1 @@
+import {useAuth} from '../../context/AuthContext';export default function Account(){const {user}=useAuth();return <div><h1 className="text-3xl font-bold">Account Settings</h1><div className="card mt-6 p-6"><p className="font-semibold">{user?.firstName} {user?.lastName}</p><p className="mt-1 text-sm text-slate-600">{user?.email}</p></div></div>}

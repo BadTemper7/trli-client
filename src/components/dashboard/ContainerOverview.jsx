@@ -1,0 +1,6 @@
+import Skeleton from '../ui/Skeleton';
+import {Link} from 'react-router-dom';
+import {Container,Boxes,Clock3,ChevronRight,ArrowRight} from 'lucide-react';
+import {clientApi} from '../../api/client';
+import useClientData from '../../api/useClientData';
+export default function ContainerOverview(){const {data,loading,error,refresh}=useClientData(clientApi.bookings);const rows=data?.bookings||[];const stats=[['Active Bookings',rows.filter(b=>!/(released|cancelled|rejected)/.test(b.status)).length,Container,'green','/bookings'],['Containers In Yard',rows.filter(b=>/(stored|gate_in_approved)/.test(b.status)).length,Boxes,'blue','/containers'],['Pending Approvals',rows.filter(b=>/pending|requested/.test(b.status)).length,Clock3,'amber','/bookings']];return <section className="overview"><div className="section-heading"><h2>Container Overview</h2><Link to="/bookings">See All <ArrowRight size={16}/></Link></div>{error&&<p role="alert">{error} <button onClick={refresh}>Retry</button></p>}<div className="overview-grid">{stats.map(([label,value,Icon,color,to])=><Link className={`metric-card ${color}`} key={label} to={to}><span className="metric-icon"><Icon size={31}/></span><div><strong>{loading?<Skeleton rows={1}/>:error?'—':value}</strong><span>{label}</span></div><ChevronRight className="metric-chevron" size={18}/></Link>)}</div></section>}

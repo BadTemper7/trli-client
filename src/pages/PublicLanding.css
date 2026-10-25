@@ -1,0 +1,390 @@
+/* One True Logistics public homepage — editorial reference layout */
+.ot-editorial{--ot-green:#006b35;--ot-forest:#073f2f;--ot-blue:#164580;font-family:Inter,'Plus Jakarta Sans',Arial,sans-serif;background:#fff;color:#072b2b;overflow:hidden}.ot-editorial *{box-sizing:border-box}.ot-editorial h1,.ot-editorial h2,.ot-editorial h3,.ot-editorial p{margin:0}.ot-editorial em{font-style:normal;color:var(--ot-green)}.ot-wide{width:min(1296px,calc(100% - 96px));margin-inline:auto}.is-public-landing .client-main{max-width:none;width:100%;padding:0;margin:0}.is-public-landing .site-header{background:rgba(255,255,255,.97);border-bottom:1px solid #e4eae7;box-shadow:none}
+.ot-hero{height:530px;position:relative;isolation:isolate;overflow:hidden;background:#d5e2e5}.ot-hero-port{position:absolute;inset:0;z-index:-3;background:linear-gradient(90deg,rgba(255,255,255,.93) 0%,rgba(255,255,255,.76) 27%,rgba(245,249,251,.10) 56%,rgba(242,245,246,.03) 100%),url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=2000&q=85') center center/cover no-repeat}.ot-hero-container{position:absolute;z-index:-1;top:-28px;right:4%;width:59%;height:calc(100% + 54px);background:url('/images/editorial-container.webp') center center/contain no-repeat;filter:drop-shadow(0 25px 20px rgba(9,34,22,.19));pointer-events:none}.ot-hero-wordmark{position:absolute;z-index:-2;top:16px;left:35%;white-space:nowrap;font-size:clamp(95px,11.4vw,172px);font-weight:900;line-height:.74;letter-spacing:-.09em;color:rgba(22,69,128,.13);pointer-events:none}.ot-hero-shell{position:relative;height:100%;width:min(1296px,calc(100% - 96px));margin:auto}.ot-hero-content{position:absolute;top:57px;left:0;width:42%;min-width:440px;z-index:2}.ot-eyebrow,.ot-label{display:block;font-size:11px;letter-spacing:.23em;color:var(--ot-green);font-weight:800}.ot-hero h1{font-weight:850;font-size:clamp(66px,6.4vw,94px);line-height:.95;letter-spacing:-.075em;margin:14px 0 14px}.ot-hero-content>p{max-width:450px;font-size:16px;line-height:1.42;color:#223e44}.ot-hero-actions{display:flex;gap:14px;align-items:center;margin-top:21px}.ot-btn-primary,.ot-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:20px;border-radius:100px;min-height:48px;padding:13px 26px;font-weight:700;font-size:13px;transition:transform .2s,background .2s}.ot-btn-primary{background:var(--ot-green);color:white}.ot-btn-outline{border:1px solid #23805b;color:#0b4233;background:rgba(255,255,255,.78)}.ot-btn-primary:hover,.ot-btn-outline:hover{transform:translateY(-2px)}.ot-hero-features{display:flex;align-items:center;gap:0;margin-top:29px;padding-top:18px;border-top:1px solid #abc7bf;width:max-content}.ot-hero-features span{display:flex;align-items:center;gap:10px;padding:0 17px;color:#092e34;font-size:11px;line-height:1.3}.ot-hero-features span:first-child{padding-left:0}.ot-hero-features span+span{border-left:1px solid #cad9d5}.ot-hero-features svg{color:#0b6140;flex:none}.ot-hero-featured{position:absolute;right:0;bottom:28px;display:flex;align-items:center;gap:12px;width:286px;padding:9px;background:#fff;border-radius:11px;box-shadow:0 10px 30px #173e2a28;z-index:3}.ot-hero-featured img{width:78px;height:69px;object-fit:cover;border-radius:7px}.ot-hero-featured div{flex:1;min-width:0}.ot-hero-featured strong{display:block;font-size:12px;line-height:1.3}.ot-hero-featured small{display:block;font-size:10px;line-height:1.35;color:#657475;margin-top:4px}.ot-hero-featured svg{flex:none;color:#064e35}
+.ot-about{position:relative;min-height:238px;background:#f7f9f8;overflow:hidden;padding:31px 0 36px}.ot-about-photo{position:absolute;right:0;top:0;bottom:0;width:34%;background:linear-gradient(90deg,#f7f9f8 0%,rgba(247,249,248,.16) 28%),url('https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1000&q=80') center/cover no-repeat;opacity:.77}.ot-about-grid{display:grid;grid-template-columns:32% 43%;gap:5%;position:relative;z-index:1}.ot-about h2{font-size:clamp(29px,2.75vw,41px);line-height:1.13;letter-spacing:-.055em;font-weight:800;max-width:410px;margin-top:15px}.ot-about-body{padding-top:13px}.ot-about-body>p{font-size:16px;line-height:1.45;color:#30424a;max-width:490px}.ot-about-body strong{color:#006b35}.ot-about-pillars{display:flex;border-top:1px solid #ccd9d6;margin-top:22px;padding-top:18px;gap:0}.ot-about-pillars span{display:flex;align-items:center;gap:9px;min-width:0;padding:0 11px;font-size:10px;line-height:1.25;white-space:nowrap}.ot-about-pillars span:first-child{padding-left:0}.ot-about-pillars svg{width:28px;height:28px;flex:none;color:#164580}.ot-services{padding:32px 0 46px;background:#fff}.ot-service-layout{display:grid;grid-template-columns:26% 1fr;gap:23px;align-items:start}.ot-services-intro{padding-top:11px}.ot-services h2{font-size:clamp(30px,2.8vw,42px);letter-spacing:-.055em;line-height:1.14;font-weight:800;margin-top:17px}.ot-service-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:stretch}.ot-service{position:relative;height:207px;display:block;overflow:hidden;color:#fff;clip-path:polygon(11% 0,100% 0,90% 100%,0% 100%);background:#052f29}.ot-service:first-child{clip-path:polygon(10% 0,100% 0,90% 100%,0% 100%)}.ot-service:last-child{clip-path:polygon(10% 0,100% 0,91% 100%,0% 100%)}.ot-service img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .4s}.ot-service:hover img{transform:scale(1.06)}.ot-service-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,28,25,.98),rgba(0,27,29,.08) 95%)}.ot-service-copy{position:absolute;bottom:14px;left:16%;right:14%;z-index:1}.ot-service-copy>svg{margin-bottom:4px}.ot-service h3{font-size:20px;line-height:1.1;letter-spacing:-.04em}.ot-service p{font-size:11px;line-height:1.4;max-width:210px;margin-top:6px;min-height:30px}.ot-service-arrow{position:absolute;right:0;bottom:3px;border:1px solid #fff9;width:31px;height:31px;border-radius:50%;display:grid;place-items:center}.ot-rates{padding:80px 0;background:#f7f9f7}.ot-rates-layout{display:grid;grid-template-columns:1fr 1fr;gap:90px;align-items:center}.ot-rates h2{font-size:clamp(36px,4vw,55px);letter-spacing:-.06em;line-height:1.08;margin:17px 0}.ot-rates p{color:#566963;line-height:1.6;max-width:480px}.ot-rate-links{border-top:1px solid #b8ccc3}.ot-rate-links a{display:flex;justify-content:space-between;align-items:center;padding:26px 10px;border-bottom:1px solid #b8ccc3;font-size:21px;font-weight:700}.ot-rate-links a:hover{color:#006b35}.ot-bottom{background:#073f2f;padding:32px 0;color:#fff}.ot-bottom .ot-wide{display:flex;gap:20px;align-items:center}.ot-bottom strong{white-space:nowrap}.ot-bottom span{flex:1;font-size:13px;color:#cce1d4}.ot-bottom a{display:flex;align-items:center;gap:9px;border:1px solid #b4d1c1;padding:10px 18px;border-radius:30px;white-space:nowrap;font-size:12px}
+@media(max-width:1100px){.ot-wide,.ot-hero-shell,.is-public-landing .header-inner{width:calc(100% - 56px)}.ot-hero-content{min-width:0;width:50%}.ot-hero h1{font-size:clamp(57px,7vw,83px)}.ot-hero-container{right:-8%;width:73%}.ot-hero-featured{width:240px}.ot-about-grid{grid-template-columns:38% 55%;gap:4%}.ot-about-photo{opacity:.18}.ot-about-pillars{flex-wrap:wrap;gap:10px}.ot-service-layout{grid-template-columns:1fr;gap:20px}.ot-services h2{max-width:520px}.ot-service{height:250px}.ot-hero-features span{padding:0 9px}}
+@media(max-width:760px){.ot-wide,.ot-hero-shell,.is-public-landing .header-inner{width:calc(100% - 36px)}.is-public-landing .mobile-menu-toggle{display:flex!important;color:#073f2f}.is-public-landing .tablet-nav{display:flex!important;flex-direction:column;background:#fff}.is-public-landing .tablet-nav a{background:#f2f7f4;color:#173f31}.ot-hero{height:790px}.ot-hero-port{background-position:center}.ot-hero-port:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#f7faf9 7%,rgba(247,250,249,.92) 45%,transparent 82%)}.ot-hero-container{height:370px;top:12px;right:-16%;width:124%;background-size:contain}.ot-hero-wordmark{top:45px;left:0;font-size:17.5vw}.ot-hero-content{top:365px;width:100%}.ot-hero h1{font-size:clamp(57px,12vw,83px);margin:13px 0}.ot-hero-content>p{font-size:15px;max-width:365px}.ot-hero-actions{margin-top:18px}.ot-btn-primary,.ot-btn-outline{min-height:45px;padding:11px 18px;font-size:12px}.ot-hero-features{margin-top:27px;padding-top:15px;width:100%;justify-content:space-between}.ot-hero-features span{font-size:9px;gap:6px;padding:0 7px}.ot-hero-features svg{width:19px;height:19px}.ot-hero-featured{bottom:13px;right:auto;left:0;width:min(320px,100%);padding:7px}.ot-hero-featured img{height:48px;width:60px}.ot-about{padding:50px 0}.ot-about-grid{grid-template-columns:1fr;gap:18px}.ot-about h2{font-size:38px}.ot-about-body{padding:0}.ot-about-body>p{font-size:15px}.ot-about-pillars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));row-gap:17px}.ot-about-pillars span{font-size:11px;padding:0}.ot-services{padding:49px 0}.ot-services h2{font-size:38px}.ot-service-list{grid-template-columns:1fr;gap:13px}.ot-service,.ot-service:first-child,.ot-service:last-child{height:245px;clip-path:none;border-radius:6px}.ot-service-copy{left:24px;right:24px;bottom:20px}.ot-service h3{font-size:23px}.ot-service p{font-size:13px}.ot-rates{padding:65px 0}.ot-rates-layout{grid-template-columns:1fr;gap:22px}.ot-rates h2{font-size:42px}.ot-bottom .ot-wide{flex-wrap:wrap;gap:13px}.ot-bottom span{flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){.ot-editorial *{animation:none!important;transition:none!important}}
+
+/* Navigation refinement: consistent thin underline, never a filled tab. */
+.client-app.is-public-landing .site-header .desktop-nav .nav-link,
+.client-app.is-public-landing .site-header .rates-nav-wrap > .nav-link {
+  position:relative;display:inline-flex;align-items:center;gap:7px;
+  height:58px;padding:0 7px;border:0;border-radius:0;
+  background:transparent;box-shadow:none;transform:none;
+  font-size:13px;font-weight:600;color:#263e3b;
+  transition:color .2s ease;
+}
+.client-app.is-public-landing .site-header .desktop-nav .nav-link::after {
+  content:"";position:absolute;bottom:0;left:7px;right:7px;height:2px;
+  background:#006b35;transform:scaleX(0);transform-origin:center;
+  transition:transform .2s ease;
+}
+.client-app.is-public-landing .site-header .desktop-nav .nav-link.active,
+.client-app.is-public-landing .site-header .desktop-nav .nav-link:hover {
+  color:#006b35;background:transparent;box-shadow:none;border:0;transform:none;
+}
+.client-app.is-public-landing .site-header .desktop-nav .nav-link.active::after,
+.client-app.is-public-landing .site-header .desktop-nav .nav-link:hover::after {transform:scaleX(1)}
+.client-app.is-public-landing .site-header .header-signin {
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:42px;padding:0 25px;border:1px solid #006b35;
+  border-radius:9px;background:#006b35;color:white;
+  font-size:13px;font-weight:750;letter-spacing:.01em;
+  box-shadow:none;transition:background .2s,border-color .2s,transform .2s;
+}
+.client-app.is-public-landing .site-header .header-signin:hover,
+.client-app.is-public-landing .site-header .header-signin:focus-visible {
+  background:#073f2f;border-color:#073f2f;transform:translateY(-1px);
+}
+.client-app.is-public-landing .site-header .header-signin:focus-visible,
+.client-app.is-public-landing .site-header .desktop-nav .nav-link:focus-visible {outline:2px solid #164580;outline-offset:3px}
+
+/* The previous full-width yard photograph created an unwanted right-side strip.
+   Contain that photograph behind the left copy; keep the container-side sky clean. */
+.ot-hero {background:linear-gradient(90deg,#f1f5f3 0%,#eef4f5 41%,#b9d8ea 70%,#9fc5df 100%)}
+.ot-hero-port {right:auto;width:50%;background:linear-gradient(90deg,rgba(255,255,255,.90),rgba(255,255,255,.73) 65%,rgba(241,247,249,1)),url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=1200&q=85') center/cover no-repeat}
+@media(max-width:760px){
+  .ot-hero-port{width:100%;background:linear-gradient(180deg,rgba(244,249,250,.05),rgba(247,250,249,.97) 76%),url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=900&q=80') center/cover no-repeat}
+  .client-app.is-public-landing .site-header .header-signin{min-height:38px;padding:0 17px;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.client-app.is-public-landing .site-header .header-signin,.client-app.is-public-landing .site-header .desktop-nav .nav-link::after{transition:none}}
+
+/* Reference alignment: an uninterrupted, two-zone full bleed cinematic hero. */
+.ot-hero{background:linear-gradient(90deg,#f9fcfc 0%,#e4f0f4 49%,#9dc6e2 100%)}
+.ot-hero-port{background:linear-gradient(90deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.80) 24%,rgba(255,255,255,.36) 43%,transparent 55%),url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=2000&q=85') left center/cover no-repeat}
+.ot-hero-container{right:0;top:0;width:58%;height:100%;background-size:cover;background-position:center center;filter:none}
+.ot-hero-featured{right:4%;bottom:26px}
+@media(max-width:760px){.ot-hero-container{width:100%;right:-8%;top:0;height:380px;background-size:contain}.ot-hero-port{background-position:left center}.ot-hero-featured{right:auto;bottom:12px}}
+
+/* 2026 cinematic hero correction: one continuous scene, no hard-cut panels. */
+.ot-hero {
+  background: #d3e2e9;
+}
+.ot-hero-port {
+  inset:0!important;
+  width:100%!important;
+  right:0!important;
+  background-image:
+    linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.80) 23%,rgba(255,255,255,.44) 41%,rgba(255,255,255,.04) 66%,rgba(255,255,255,0) 100%),
+    url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=2200&q=85')!important;
+  background-position:center center!important;
+  background-size:cover!important;
+}
+.ot-hero-container {
+  width:58%!important;
+  height:100%!important;
+  top:0!important;
+  right:0!important;
+  background-size:contain!important;
+  background-position:center right!important;
+  filter:none!important;
+  /* Feather the scene edge into the shared port photograph, preventing a visible seam. */
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.2) 7%,#000 25%);
+  mask-image:linear-gradient(to right,transparent 0%,rgba(0,0,0,.2) 7%,#000 25%);
+}
+/* The container artwork already contains display lettering; don't duplicate it. */
+.ot-hero-wordmark{display:none!important}
+.ot-rates{background:#f7f9f7}
+.ot-rate-links{border-top:1px solid #c7d8ce}
+.ot-rate-mini-label{font-size:11px;font-weight:800;letter-spacing:.18em;color:#006b35;margin:20px 0 14px}
+.ot-rate-services{display:grid;gap:0}
+.ot-rate-services>span{display:grid;grid-template-columns:34px 1fr;column-gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #d6e2da}
+.ot-rate-services svg{color:#006b35;grid-row:span 2}
+.ot-rate-services strong{font-size:16px;color:#073f2f}
+.ot-rate-services small{color:#6a7972;font-size:12px;margin-top:3px}
+.ot-rate-links a{font-size:15px;color:#006b35;padding:22px 0}
+@media(max-width:760px){
+  .ot-hero-port{background-position:center center!important}
+  .ot-hero-container{width:100%!important;height:370px!important;right:-7%!important;background-size:contain!important;background-position:top right!important}
+  .ot-hero-port:after{background:linear-gradient(0deg,#f7faf9 7%,rgba(247,250,249,.92) 43%,transparent 84%)}
+  .ot-rates-layout{gap:22px}
+}
+
+/* Hero image replacement: single, uninterrupted photograph supplied by client. */
+.ot-editorial .ot-hero {
+  background: #c9dce8;
+}
+.ot-editorial .ot-hero-port {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-image: linear-gradient(90deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.82) 24%, rgba(255,255,255,.47) 41%, rgba(255,255,255,.02) 65%), url('/images/otli-hero.webp') !important;
+  background-size: cover !important;
+  background-position: 62% center !important;
+  background-repeat: no-repeat !important;
+}
+.ot-editorial .ot-hero-port::after { content: none !important; }
+.ot-editorial .ot-hero-container { display: none !important; }
+@media (min-width: 1500px) {
+  .ot-editorial .ot-hero-port { background-position: center 48% !important; }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .ot-editorial .ot-hero-port {
+    background-image: linear-gradient(90deg,rgba(255,255,255,.97) 0%,rgba(255,255,255,.86) 29%,rgba(255,255,255,.17) 77%),url('/images/otli-hero.webp') !important;
+    background-position: 57% center !important;
+  }
+}
+@media (max-width: 760px) {
+  .ot-editorial .ot-hero {
+    height: auto;
+    min-height: 700px;
+  }
+  .ot-editorial .ot-hero-port {
+    background-image: linear-gradient(180deg, rgba(255,255,255,.02) 0%,rgba(255,255,255,.10) 31%,rgba(248,251,249,.95) 53%,#f8fbf9 76%),url('/images/otli-hero.webp') !important;
+    background-position: 61% top !important;
+    background-size: auto 57%, auto 57% !important;
+    background-color: #f8fbf9;
+  }
+  .ot-editorial .ot-hero-shell { min-height: 700px; }
+  .ot-editorial .ot-hero-content { top: 330px; }
+  .ot-editorial .ot-hero-featured { bottom: 10px; }
+}
+@media (max-width: 390px) {
+  .ot-editorial .ot-hero { min-height: 750px; }
+  .ot-editorial .ot-hero-shell { min-height: 750px; }
+  .ot-editorial .ot-hero-content { top: 305px; }
+}
+
+/* FINAL HERO: use the client's single port photograph only.  Never layer a
+   second container/yard picture.  Fit by HEIGHT on desktop so the crane,
+   suspended container and yard stay in frame rather than being zoomed/cropped. */
+.ot-editorial .ot-hero {
+  background: #d9e8ef;
+}
+.ot-editorial .ot-hero-port {
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: #e8f1f5 !important;
+  background-image:
+    linear-gradient(90deg,
+      rgba(255,255,255,.98) 0%,
+      rgba(255,255,255,.97) 23%,
+      rgba(255,255,255,.90) 35%,
+      rgba(255,255,255,.44) 51%,
+      rgba(255,255,255,.05) 69%,
+      rgba(255,255,255,0) 100%),
+    url('/images/otli-hero.webp') !important;
+  background-size: 100% 100%, auto 100% !important;
+  background-position: center center, right center !important;
+  background-repeat: no-repeat !important;
+}
+.ot-editorial .ot-hero-port::after {display:none !important;content:none !important;}
+.ot-editorial .ot-hero-container {display:none !important;}
+.ot-editorial .ot-hero-wordmark {
+  display:block !important;
+  left:36%;
+  top:25px;
+  color:rgba(22,69,128,.095);
+  z-index:-2;
+  font-size:clamp(88px,10vw,160px);
+}
+@media (min-width: 1500px) {
+  .ot-editorial .ot-hero-port {
+    background-position:center center, right center !important;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .ot-editorial .ot-hero-port {
+    background-image:linear-gradient(90deg,rgba(255,255,255,.98),rgba(255,255,255,.9) 30%,rgba(255,255,255,.18) 72%,transparent),url('/images/otli-hero.webp') !important;
+    background-size:100% 100%,auto 100% !important;
+    background-position:center,right center !important;
+  }
+  .ot-editorial .ot-hero-wordmark {left:36%;font-size:10vw;}
+}
+@media (max-width: 760px) {
+  .ot-editorial .ot-hero {height:auto;min-height:700px;background:#f8fbf9;}
+  .ot-editorial .ot-hero-port {
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.03) 28%,rgba(248,251,249,.87) 49%,#f8fbf9 61%),
+      url('/images/otli-hero.webp') !important;
+    background-size:100% 100%,auto 350px !important;
+    background-position:center top,right top !important;
+  }
+  .ot-editorial .ot-hero-wordmark {display:none !important;}
+  .ot-editorial .ot-hero-shell {min-height:700px;}
+  .ot-editorial .ot-hero-content {top:330px;}
+  .ot-editorial .ot-hero-featured {bottom:10px;}
+}
+@media (max-width:390px) {
+  .ot-editorial .ot-hero {min-height:750px;}
+  .ot-editorial .ot-hero-shell {min-height:750px;}
+  .ot-editorial .ot-hero-content {top:315px;}
+}
+
+/* Hero revision: restore the yard photograph on the left, retain the uploaded
+   suspended-container photograph on the right, and soften the transition. */
+@media (min-width: 761px) {
+  .ot-editorial .ot-hero { background:#e9f1ee !important; }
+  .ot-editorial .ot-hero-port {
+    background-image:
+      linear-gradient(90deg,rgba(255,255,255,.88) 0%,rgba(255,255,255,.72) 18%,rgba(255,255,255,.38) 35%,rgba(255,255,255,.08) 47%,transparent 58%),
+      linear-gradient(90deg,transparent 38%,rgba(244,249,247,.58) 49%,rgba(244,249,247,.04) 58%,transparent 67%),
+      url('https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=1500&q=85'),
+      url('/images/otli-hero.webp') !important;
+    background-size:100% 100%,100% 100%,54% 100%,auto 100% !important;
+    background-position:center,center,left center,right center !important;
+    background-repeat:no-repeat !important;
+  }
+}
+@media (max-width:760px) {
+  .ot-editorial .ot-hero-port {
+    background-image:linear-gradient(180deg,transparent 0%,rgba(247,249,247,.08) 29%,#f7f9f7 58%),url('/images/otli-hero.webp') !important;
+    background-size:100% 100%,auto 350px !important;
+    background-position:center top,right top !important;
+  }
+}
+
+/* Single supplied photo: no additional hero imagery or container cutouts. */
+.ot-editorial .ot-hero{background:#dbe9ed!important;overflow:hidden}
+.ot-editorial .ot-hero-port{inset:0!important;position:absolute!important;background-image:linear-gradient(90deg,rgba(255,255,255,.89) 0%,rgba(255,255,255,.68) 27%,rgba(255,255,255,.10) 52%,transparent 75%),url('/images/otli-hero-final.webp')!important;background-size:100% 100%,cover!important;background-position:center center,center 49%!important;background-repeat:no-repeat!important;opacity:1!important;transform:none!important}
+.ot-editorial .ot-hero-port:before,.ot-editorial .ot-hero-port:after,.ot-editorial .ot-hero-container{display:none!important;content:none!important}
+.ot-editorial .ot-hero-wordmark{opacity:.12!important;pointer-events:none}
+.ot-service-motion{min-width:0;display:flex;flex:1}.ot-service-motion .ot-service{width:100%}
+@media(max-width:760px){.ot-editorial .ot-hero-port{background-image:linear-gradient(180deg,rgba(255,255,255,.04) 0%,rgba(247,249,247,.15) 27%,rgba(247,249,247,.98) 56%,#f7f9f7 85%),url('/images/otli-hero-mobile.webp')!important;background-size:100% 100%,100% auto!important;background-position:center top,center top!important}.ot-editorial .ot-hero-wordmark{display:none!important}}
+
+/* Mobile hero: keep the copy INSIDE the photographic hero, not in a
+   separate white section beneath the image. Desktop remains unchanged. */
+@media (max-width: 760px) {
+  .ot-editorial .ot-hero {
+    position: relative;
+    height: 690px !important;
+    min-height: 690px !important;
+    background: #a7c5d2 !important;
+  }
+  .ot-editorial .ot-hero-port {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-image:
+      linear-gradient(180deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,.04) 25%,
+        rgba(247,249,247,.68) 42%,
+        rgba(247,249,247,.88) 68%,
+        rgba(247,249,247,.90) 100%),
+      url('/images/otli-hero-mobile.webp') !important;
+    background-size: 100% 100%, cover !important;
+    background-position: center, 55% center !important;
+    background-repeat: no-repeat !important;
+  }
+  .ot-editorial .ot-hero-shell {
+    position: relative;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 36px;
+  }
+  .ot-editorial .ot-hero-content {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    z-index: 2;
+  }
+  .ot-editorial .ot-hero h1 {
+    font-size: clamp(51px, 11.5vw, 74px);
+    line-height: .97;
+    margin: 10px 0 14px;
+  }
+  .ot-editorial .ot-hero-content > p {max-width: 420px;}
+  .ot-editorial .ot-hero-features { margin-top: 21px; }
+  .ot-editorial .ot-hero-featured { display: none !important; }
+}
+@media (max-width: 390px) {
+  .ot-editorial .ot-hero {height: 665px !important; min-height: 665px !important;}
+  .ot-editorial .ot-hero-shell {padding-bottom: 25px;}
+  .ot-editorial .ot-hero h1 {font-size: clamp(49px, 11.8vw, 61px);}
+  .ot-editorial .ot-hero-features span {font-size: 8px;}
+}
+
+/* Reference-art hero on desktop: artwork already contains its own heading and CTAs. */
+@media (min-width: 761px) {
+  .ot-editorial .ot-hero {height:auto!important;min-height:0!important;aspect-ratio:1064 / 356;background:#eff4f5!important;overflow:hidden!important;}
+  .ot-editorial .ot-hero-reference {position:absolute;inset:0;z-index:1;background:url('/images/otli-hero-reference.webp') center / 100% 100% no-repeat;pointer-events:none;}
+  .ot-editorial .ot-hero-port,.ot-editorial .ot-hero-wordmark,.ot-editorial .ot-hero-shell {display:none!important;}
+  .ot-editorial .ot-hero-image-links {position:absolute;inset:0;z-index:3;display:block;}
+  .ot-editorial .ot-hero-image-links a {position:absolute;top:60.6%;height:10%;border-radius:100px;}
+  .ot-editorial .ot-hero-image-links a:first-child {left:9.35%;width:13.1%;}
+  .ot-editorial .ot-hero-image-links a:nth-child(2) {left:23.15%;width:9.7%;}
+  .ot-editorial .ot-hero-image-links a:focus-visible {outline:3px solid #006b35;outline-offset:4px;background:rgba(255,255,255,.12);}
+}
+@media(max-width:760px){.ot-editorial .ot-hero-reference,.ot-editorial .ot-hero-image-links{display:none!important}}
+
+/* Real, accessible hero content over the supplied full-resolution port photo. */
+.ot-editorial .ot-hero {
+  position: relative !important;
+  height: clamp(540px, 34vw, 650px) !important;
+  min-height: 540px !important;
+  aspect-ratio: auto !important;
+  background: #d8e7ec !important;
+  isolation: isolate;
+}
+.ot-editorial .ot-hero-port {
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 0 !important;
+  background-image: linear-gradient(90deg, rgba(255,255,255,.91) 0%, rgba(255,255,255,.77) 20%, rgba(255,255,255,.30) 43%, rgba(255,255,255,0) 68%), url('/images/otli-hero-clean.webp') !important;
+  background-size: 100% 100%, cover !important;
+  background-position: center, center 49% !important;
+  background-repeat: no-repeat !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+.ot-editorial .ot-hero-port::before,
+.ot-editorial .ot-hero-port::after,
+.ot-editorial .ot-hero-reference,
+.ot-editorial .ot-hero-image-links,
+.ot-editorial .ot-hero-container { display: none !important; }
+.ot-editorial .ot-hero-wordmark {
+  display: block !important;
+  position: absolute;
+  z-index: 1 !important;
+  top: 24px;
+  left: 37%;
+  font-size: clamp(75px, 10.3vw, 174px);
+  line-height: .78;
+  color: rgba(22,69,128,.11);
+  opacity: 1 !important;
+}
+.ot-editorial .ot-hero-shell {
+  display: block !important;
+  position: relative !important;
+  z-index: 2 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+.ot-editorial .ot-hero-content { top: clamp(55px,5.6vw,100px) !important; }
+.ot-editorial .ot-hero-featured { bottom: 26px !important; right: 0 !important; }
+@media (max-width: 1100px) and (min-width: 761px) {
+  .ot-editorial .ot-hero-content { width: 48%; min-width: 0; }
+  .ot-editorial .ot-hero h1 { font-size: clamp(53px,6.9vw,78px); }
+}
+@media (max-width: 760px) {
+  .ot-editorial .ot-hero {
+    height: 735px !important;
+    min-height: 735px !important;
+    background: #f7f9f7 !important;
+  }
+  .ot-editorial .ot-hero-port {
+    background-image: linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(247,249,247,.10) 29%,rgba(247,249,247,.83) 47%,#f7f9f7 68%),url('/images/otli-hero-clean.webp') !important;
+    background-size: 100% 100%, auto 410px !important;
+    background-position: center top, 62% top !important;
+  }
+  .ot-editorial .ot-hero-wordmark { display: none !important; }
+  .ot-editorial .ot-hero-shell { min-height: 735px !important; width: calc(100% - 36px) !important; }
+  .ot-editorial .ot-hero-content { top: 365px !important; left: 0; width: 100%; }
+  .ot-editorial .ot-hero h1 { font-size: clamp(49px,11vw,69px); }
+  .ot-editorial .ot-hero-featured { display: none !important; }
+}
+@media (max-width: 390px) {
+  .ot-editorial .ot-hero { height: 760px !important; min-height: 760px !important; }
+  .ot-editorial .ot-hero-shell { min-height: 760px !important; }
+  .ot-editorial .ot-hero-content { top: 350px !important; }
+  .ot-editorial .ot-hero-features span { font-size: 8px; }
+}

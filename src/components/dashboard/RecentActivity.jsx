@@ -1,0 +1,6 @@
+import Skeleton from '../ui/Skeleton';
+import {Link} from 'react-router-dom';
+import {FileText,ChevronRight,ArrowRight,ClipboardList} from 'lucide-react';
+import {clientApi,dateLabel,bookingLabel,statusLabel} from '../../api/client';
+import useClientData from '../../api/useClientData';
+export default function RecentActivity(){const {data,loading,error,refresh}=useClientData(clientApi.bookings);return <section className="panel activity-panel"><div className="section-heading"><h2>Recent Activity</h2><Link to="/history">See All <ArrowRight size={16}/></Link></div><div className="activity-list">{loading?<Skeleton variant="activity" rows={3}/>:error?<p>{error} <button onClick={refresh}>Retry</button></p>:(data?.bookings||[]).slice(0,5).map(b=><Link key={b.id} to={`/bookings/${b.id}`} className="activity-row"><span className="activity-icon pending"><FileText size={20}/></span><span className="activity-copy"><strong>{statusLabel(b.status)}</strong><small>Booking: {bookingLabel(b)}</small></span><span className="activity-date">{dateLabel(b.createdAt||b.inDate)}</span><ChevronRight size={16}/></Link>)}{!loading&&!error&&!data?.bookings?.length&&<div className="dashboard-empty"><ClipboardList size={23}/><strong>No recent activity</strong><span>Updates from your bookings will appear here.</span></div>}</div></section>}
