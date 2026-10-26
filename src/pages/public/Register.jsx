@@ -68,9 +68,11 @@ const passwordRules = [
 const inputBase =
   "w-full rounded-xl border bg-white px-4 py-3 text-[15px] text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-4";
 const inputOk =
-  "border-slate-200 hover:border-slate-300 focus:border-[#1d4f91] focus:ring-[#1d4f91]/15";
+  "border-slate-300 hover:border-slate-400 focus:border-brand-blue focus:ring-brand-blue/15";
 const inputBad =
   "border-red-300 bg-red-50/40 focus:border-red-500 focus:ring-red-500/15";
+const btnPrimary =
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-blue px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-blue/25 transition hover:-translate-y-px hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none";
 
 function Field({ label, required, error, hint, children }) {
   return (
@@ -81,7 +83,7 @@ function Field({ label, required, error, hint, children }) {
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </span>
         {!required && (
-          <span className="text-xs font-normal text-slate-400">Optional</span>
+          <span className="text-xs font-normal text-slate-500">Optional</span>
         )}
       </label>
       {children}
@@ -158,7 +160,7 @@ function OtpInput({ value, onChange }) {
             onChange(t);
             refs.current[Math.min(t.length, 5)]?.focus();
           }}
-          className={`h-14 w-11 rounded-xl border bg-white text-center text-2xl font-semibold text-slate-900 shadow-sm outline-none transition focus:border-[#1d4f91] focus:ring-4 focus:ring-[#1d4f91]/15 sm:h-16 sm:w-14 ${d ? "border-[#1d4f91]" : "border-slate-200"}`}
+          className={`h-14 w-11 rounded-xl border bg-white text-center text-2xl font-semibold text-slate-900 shadow-sm outline-none transition focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/15 sm:h-16 sm:w-14 ${d ? "border-brand-blue" : "border-slate-300"}`}
         />
       ))}
     </div>
@@ -173,7 +175,7 @@ function ReviewCard({ title, onEdit, children }) {
         <button
           type="button"
           onClick={onEdit}
-          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-[#1d4f91] transition hover:bg-[#1d4f91]/10"
+          className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-brand-blue transition hover:bg-brand-blue/10"
         >
           <Pencil size={13} /> Edit
         </button>
@@ -311,8 +313,12 @@ export default function Register() {
   /* ---------- success ---------- */
   if (done)
     return (
-      <main className="grid min-h-screen place-items-center bg-[#f4f6fa] p-4">
-        <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-[0_30px_80px_-30px_rgba(15,47,87,0.35)]">
+      <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#f5f7fb] p-4">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-brand-blue/10 blur-3xl"
+        />
+        <div className="relative w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-xl shadow-brand-blue/10">
           <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-emerald-50 ring-8 ring-emerald-50/60">
             <CheckCircle2 className="text-emerald-600" size={44} />
           </div>
@@ -325,7 +331,7 @@ export default function Register() {
           </p>
           <button
             onClick={() => nav("/login")}
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#1d4f91] px-6 py-3 font-semibold text-white shadow-lg shadow-[#1d4f91]/25 transition hover:bg-[#173f74] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d4f91]"
+            className={`${btnPrimary} mt-8 h-12`}
           >
             Go to login <ArrowRight size={18} />
           </button>
@@ -361,31 +367,45 @@ export default function Register() {
   const progress = (step / (steps.length - 1)) * 100;
 
   return (
-    <main className="min-h-screen bg-[#f4f6fa] px-4 py-6 sm:px-8 sm:py-10">
+    <main className="relative min-h-screen overflow-hidden bg-[#f5f7fb] px-4 py-6 sm:px-8 sm:py-10">
       <style>{`
         @keyframes regIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
         .reg-in { animation: regIn .35s cubic-bezier(.2,.7,.2,1) both; }
         @media (prefers-reduced-motion: reduce) { .reg-in { animation: none; } }
       `}</style>
 
-      <div className="mx-auto grid max-w-6xl overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_40px_100px_-40px_rgba(15,47,87,0.4)] lg:grid-cols-[340px_1fr]">
+      {/* soft background glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 left-1/2 h-[28rem] w-[50rem] -translate-x-1/2 rounded-full bg-brand-blue/10 blur-3xl"
+      />
+
+      <div className="relative mx-auto grid max-w-6xl overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_40px_100px_-40px_rgba(58,31,199,0.35)] lg:grid-cols-[340px_1fr]">
         {/* ===== Left: route-style stepper (desktop) ===== */}
-        <aside className="relative hidden flex-col justify-between overflow-hidden bg-[#0f2f57] p-9 text-white lg:flex">
+        <aside className="relative hidden flex-col justify-between overflow-hidden bg-brand-blue p-9 text-white lg:flex">
+          {/* depth: gradient, grid, glow */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#1d4f91]/50 blur-3xl"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/40"
           />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,rgb(255_255_255/0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgb(255_255_255/0.08)_1px,transparent_1px)] [background-size:44px_44px] [mask-image:radial-gradient(ellipse_at_top_left,black,transparent_70%)]"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-white/10 blur-3xl"
+          />
+
           <div className="relative">
-            <Link
-              to="/"
-              className="inline-block rounded-2xl bg-white px-4 py-2.5 shadow-lg"
-            >
-              <img src="/images/logo.webp" alt="Home" className="h-10" />
-            </Link>
-            <h2 className="mt-10 text-2xl font-semibold leading-snug tracking-tight">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-medium backdrop-blur-sm">
+              <Building2 size={14} />
+              Client registration
+            </span>
+            <h2 className="mt-8 text-3xl font-semibold leading-tight tracking-tight">
               Register your company
             </h2>
-            <p className="mt-2 text-sm leading-relaxed text-blue-100/80">
+            <p className="mt-2 text-sm leading-relaxed text-white/80">
               Six short stops. It takes about five minutes with your documents
               ready.
             </p>
@@ -393,11 +413,11 @@ export default function Register() {
             <ol className="relative mt-10">
               <span
                 aria-hidden
-                className="absolute left-[17px] top-3 h-[calc(100%-1.5rem)] w-px border-l-2 border-dashed border-white/20"
+                className="absolute left-[17px] top-3 h-[calc(100%-1.5rem)] w-px border-l-2 border-dashed border-white/25"
               />
               <span
                 aria-hidden
-                className="absolute left-[17px] top-3 w-[2px] bg-gradient-to-b from-red-400 to-red-500 transition-all duration-500"
+                className="absolute left-[17px] top-3 w-[2px] bg-white transition-all duration-500"
                 style={{ height: `calc((100% - 1.5rem) * ${progress / 100})` }}
               />
               {steps.map((s, i) => {
@@ -411,22 +431,22 @@ export default function Register() {
                     <span
                       className={`relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 text-sm font-semibold transition-all ${
                         active
-                          ? "border-white bg-white text-[#0f2f57] shadow-[0_0_0_6px_rgba(255,255,255,0.12)]"
+                          ? "border-white bg-white text-brand-blue shadow-[0_0_0_6px_rgba(255,255,255,0.18)]"
                           : complete
-                            ? "border-red-400 bg-red-500 text-white"
-                            : "border-white/25 bg-[#0f2f57] text-white/50"
+                            ? "border-white/60 bg-white/25 text-white"
+                            : "border-white/30 bg-white/5 text-white/70"
                       }`}
                     >
                       {complete ? <Check size={17} strokeWidth={3} /> : i + 1}
                     </span>
                     <div aria-current={active ? "step" : undefined}>
                       <p
-                        className={`text-sm font-semibold ${active ? "text-white" : complete ? "text-blue-50" : "text-white/50"}`}
+                        className={`text-sm font-semibold ${active || complete ? "text-white" : "text-white/70"}`}
                       >
                         {s.label}
                       </p>
                       <p
-                        className={`text-xs ${active ? "text-blue-100/80" : "text-white/35"}`}
+                        className={`text-xs ${active ? "text-white/85" : "text-white/60"}`}
                       >
                         {s.hint}
                       </p>
@@ -437,10 +457,18 @@ export default function Register() {
             </ol>
           </div>
 
-          <p className="relative mt-10 flex items-start gap-2 text-xs leading-relaxed text-blue-100/70">
-            <ShieldCheck size={16} className="mt-0.5 shrink-0" />
-            Your documents are used only to verify your business.
-          </p>
+          <div className="relative mt-10 space-y-4">
+            <p className="flex items-start gap-3 rounded-2xl border border-white/20 bg-black/25 p-4 text-xs leading-relaxed text-white/90 backdrop-blur-sm">
+              <ShieldCheck size={16} className="mt-0.5 shrink-0" />
+              Your documents are used only to verify your business.
+            </p>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-white/80 transition hover:text-white"
+            >
+              <ArrowLeft size={14} /> Back to home
+            </Link>
+          </div>
         </aside>
 
         {/* ===== Right: form ===== */}
@@ -448,8 +476,11 @@ export default function Register() {
           {/* mobile header */}
           <div className="border-b border-slate-100 p-5 lg:hidden">
             <div className="flex items-center justify-between">
-              <Link to="/">
-                <img src="/images/logo.webp" alt="Home" className="h-10" />
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600"
+              >
+                <ArrowLeft size={14} /> Home
               </Link>
               <span className="text-xs font-semibold text-slate-500">
                 Step {step + 1} of {steps.length}
@@ -457,7 +488,7 @@ export default function Register() {
             </div>
             <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#1d4f91] to-red-500 transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-brand-blue to-brand-blue/60 transition-all duration-500"
                 style={{ width: `${((step + 1) / steps.length) * 100}%` }}
               />
             </div>
@@ -466,10 +497,13 @@ export default function Register() {
           <div className="flex-1 p-6 sm:p-10">
             <div key={step} className="reg-in">
               <div className="flex items-center gap-4">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#1d4f91]/10 text-[#1d4f91]">
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-blue text-white shadow-lg shadow-brand-blue/25">
                   <Icon size={24} />
                 </span>
                 <div>
+                  <p className="hidden text-xs font-semibold uppercase tracking-wider text-brand-blue lg:block">
+                    Step {step + 1} of {steps.length}
+                  </p>
                   <h1 className="text-2xl font-bold tracking-tight text-slate-900">
                     {steps[step].label}
                   </h1>
@@ -603,7 +637,7 @@ export default function Register() {
                           aria-label={
                             showPassword ? "Hide password" : "Show password"
                           }
-                          className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100"
+                          className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
                         >
                           {showPassword ? (
                             <EyeOff size={18} />
@@ -666,7 +700,7 @@ export default function Register() {
                         <>
                           I agree to the{" "}
                           <Link
-                            className="font-semibold text-[#1d4f91] underline-offset-2 hover:underline"
+                            className="font-semibold text-brand-blue underline-offset-2 hover:underline"
                             target="_blank"
                             to="/terms"
                           >
@@ -680,7 +714,7 @@ export default function Register() {
                         <>
                           I agree to the{" "}
                           <Link
-                            className="font-semibold text-[#1d4f91] underline-offset-2 hover:underline"
+                            className="font-semibold text-brand-blue underline-offset-2 hover:underline"
                             target="_blank"
                             to="/privacy-policy"
                           >
@@ -696,11 +730,11 @@ export default function Register() {
                     ].map(([k, l]) => (
                       <label
                         key={k}
-                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 text-sm text-slate-700 transition ${form[k] ? "border-[#1d4f91]/40 bg-[#1d4f91]/5" : "border-slate-200 hover:border-slate-300"}`}
+                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 text-sm text-slate-700 transition ${form[k] ? "border-brand-blue/40 bg-brand-blue/5" : "border-slate-200 hover:border-slate-300"}`}
                       >
                         <input
                           type="checkbox"
-                          className="mt-0.5 h-4 w-4 accent-[#1d4f91]"
+                          className="mt-0.5 h-4 w-4 accent-brand-blue"
                           checked={form[k]}
                           onChange={(e) => set(k, e.target.checked)}
                         />
@@ -735,7 +769,7 @@ export default function Register() {
                     ].map(([k, l, r]) => (
                       <div
                         key={k}
-                        className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4"
+                        className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 transition hover:border-brand-blue/30 hover:bg-brand-blue/[0.03]"
                       >
                         <FileUpload
                           label={l}
@@ -774,7 +808,7 @@ export default function Register() {
                   <button
                     onClick={verify}
                     disabled={busy || otp.length !== 6}
-                    className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1d4f91] px-6 py-3.5 font-semibold text-white shadow-lg shadow-[#1d4f91]/25 transition hover:bg-[#173f74] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                    className={`${btnPrimary} mt-7 h-12 w-full`}
                   >
                     {busy && <Loader2 size={18} className="animate-spin" />}
                     {busy ? "Verifying…" : "Verify code"}
@@ -782,7 +816,7 @@ export default function Register() {
                   <button
                     onClick={requestOtp}
                     disabled={busy || countdown > 0}
-                    className="mt-4 text-sm font-semibold text-[#1d4f91] disabled:text-slate-400"
+                    className="mt-4 text-sm font-semibold text-brand-blue hover:underline disabled:text-slate-400 disabled:no-underline"
                   >
                     {countdown > 0
                       ? `Resend available in ${countdown}s`
@@ -855,20 +889,17 @@ export default function Register() {
           </div>
 
           {/* footer actions */}
-          <div className="flex items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/50 px-6 py-5 sm:px-10">
+          <div className="flex items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/60 px-6 py-5 sm:px-10">
             <button
               onClick={back}
               disabled={step === 0 || busy}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:invisible"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:invisible"
             >
               <ArrowLeft size={17} /> Back
             </button>
 
             {step < 3 && (
-              <button
-                onClick={next}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#1d4f91] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1d4f91]/25 transition hover:bg-[#173f74] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d4f91]"
-              >
+              <button onClick={next} className={btnPrimary}>
                 Continue <ArrowRight size={17} />
               </button>
             )}
@@ -881,7 +912,7 @@ export default function Register() {
                   busy
                 }
                 onClick={requestOtp}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#1d4f91] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#1d4f91]/25 transition hover:bg-[#173f74] disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                className={btnPrimary}
               >
                 {busy && <Loader2 size={17} className="animate-spin" />}
                 {busy ? "Sending…" : "Send verification code"}
@@ -891,7 +922,7 @@ export default function Register() {
               <button
                 disabled={!verified || busy}
                 onClick={complete}
-                className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-600/25 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
+                className={btnPrimary}
               >
                 {busy && <Loader2 size={17} className="animate-spin" />}
                 {busy ? "Submitting…" : "Submit registration"}

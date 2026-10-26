@@ -20,7 +20,11 @@ import Account from "./pages/portal/Account";
 import PageHelmet from "./components/layout/PageHelmet";
 
 function RouteLoading() {
-  return <div className="grid min-h-[60vh] place-items-center bg-slate-50">Loading...</div>;
+  return (
+    <div className="grid min-h-[60vh] place-items-center bg-slate-50">
+      Loading...
+    </div>
+  );
 }
 
 function PortalGuard() {
@@ -46,32 +50,46 @@ export default function App() {
     <>
       <PageHelmet />
       <Routes>
-      <Route element={<PublicLayout />}>
-        <Route path="/" element={<PublicHomeRoute />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/rates" element={<Rates />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/terms" element={<Legal type="terms" />} />
-        <Route path="/privacy-policy" element={<Legal type="privacy" />} />
-        <Route path="/login" element={<GuestOnlyRoute><Login /></GuestOnlyRoute>} />
-        <Route path="/register" element={<GuestOnlyRoute><Register /></GuestOnlyRoute>} />
-      </Route>
-
-      <Route path="/portal" element={<PortalGuard />}>
-        <Route element={<PortalLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="pre-advice" element={<PreAdviceList />} />
-          <Route path="pre-advice/new" element={<PreAdviceForm />} />
-          <Route path="pre-advice/:id" element={<PreAdviceDetail />} />
-          <Route path="pre-advice/:id/edit" element={<PreAdviceForm />} />
-          <Route path="company" element={<Company />} />
-          <Route path="documents" element={<Documents />} />
-          <Route path="account" element={<Account />} />
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<PublicHomeRoute />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/rates" element={<Rates />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Legal type="terms" />} />
+          <Route path="/privacy-policy" element={<Legal type="privacy" />} />
+          <Route
+            path="/login"
+            element={
+              <GuestOnlyRoute>
+                <Login />
+              </GuestOnlyRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <GuestOnlyRoute>
+                <Register />
+              </GuestOnlyRoute>
+            }
+          />
         </Route>
-      </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/portal" element={<PortalGuard />}>
+          <Route element={<PortalLayout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="pre-advice" element={<PreAdviceList />} />
+            <Route path="pre-advice/new" element={<PreAdviceForm />} />
+            <Route path="pre-advice/:id" element={<PreAdviceDetail />} />
+            <Route path="pre-advice/:id/edit" element={<PreAdviceForm />} />
+            <Route path="company" element={<Company />} />
+            <Route path="documents" element={<Documents />} />
+            <Route path="account" element={<Account />} />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

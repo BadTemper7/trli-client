@@ -54,7 +54,8 @@ export default function Header() {
   const [open, setOpen] = useState(false),
     [notificationsOpen, setNotificationsOpen] = useState(false),
     [mobileMenu, setMobileMenu] = useState(false),
-    [search, setSearch] = useState("");
+    [search, setSearch] = useState(""),
+    [scrolled, setScrolled] = useState(false);
   const holder = useRef(null),
     notificationHolder = useRef(null);
   const navigate = useNavigate();
@@ -80,8 +81,23 @@ export default function Header() {
       if (!notificationHolder.current?.contains(e.target))
         setNotificationsOpen(false);
     }
+    function key(e) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setNotificationsOpen(false);
+        setMobileMenu(false);
+      }
+    }
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
     document.addEventListener("pointerdown", outside);
-    return () => document.removeEventListener("pointerdown", outside);
+    document.addEventListener("keydown", key);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", key);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
   const searchSubmit = (e) => {
     e.preventDefault();
@@ -89,7 +105,7 @@ export default function Header() {
       navigate(`/bookings?q=${encodeURIComponent(search.trim())}`);
   };
   return (
-    <header className="site-header">
+    <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
       <div className="header-inner">
         <Link to="/" className="brand" aria-label="One True Logistics home">
           <img src="/images/images/logo.webp" alt="ONE TRUE LOGISTICS INC." />
@@ -203,6 +219,10 @@ export default function Header() {
               </button>
               {open && (
                 <div className="profile-dropdown">
+                  <div className="profile-dropdown-head">
+                    <strong>{displayName}</strong>
+                    <small>{user?.companyName || "Business account"}</small>
+                  </div>
                   {menu
                     .filter(([url]) => url !== "/login" && url !== "/register")
                     .map(([url, label, Icon]) => (
