@@ -17,6 +17,7 @@ import PreAdviceDetail from "./pages/portal/PreAdviceDetail";
 import Company from "./pages/portal/Company";
 import Documents from "./pages/portal/Documents";
 import Account from "./pages/portal/Account";
+import Invoices from "./pages/portal/Invoices";
 import PageHelmet from "./components/layout/PageHelmet";
 
 function RouteLoading() {
@@ -84,6 +85,7 @@ export default function App() {
             <Route path="pre-advice/:id" element={<PreAdviceDetail />} />
             <Route path="pre-advice/:id/edit" element={<PreAdviceForm />} />
             <Route path="company" element={<Company />} />
+            <Route path="invoices" element={<Invoices />} />
             <Route path="documents" element={<Documents />} />
             <Route path="account" element={<Account />} />
           </Route>

@@ -1,211 +1,42 @@
-import { useEffect, useMemo, useState } from "react";
-import { Banknote, MapPin, PackageCheck, RefreshCw } from "lucide-react";
-import { api } from "../../lib/api";
-import TableSkeleton from "../../components/ui/TableSkeleton";
+import {useCallback,useEffect,useMemo,useState} from 'react';
+import {Banknote,RefreshCw,Info,ArrowDownToLine,ArrowUpFromLine} from 'lucide-react';
+import {api} from '../../lib/api';
+import TableSkeleton from '../../components/ui/TableSkeleton';
 
-const classificationOptions = ["ALL", "LOCAL", "INTERNATIONAL"];
-const loadOptions = ["ALL", "EMPTY", "LOADED"];
+const money = new Intl.NumberFormat('en-PH',{style:'currency',currency:'PHP',minimumFractionDigits:2});
+const display=value=>String(value||'').replaceAll('_',' ').toLowerCase().replace(/\b\w/g,char=>char.toUpperCase());
+const basis=rate=>rate.name==='Storage'?'Per billable day':rate.name==='Overtime'?'Per eligible movement':'Per container / transaction';
+const tax=rate=>rate.taxTreatment==='EXEMPT'?'VAT exempt':rate.taxTreatment==='ZERO_RATED'?'Zero-rated':'VAT taxable';
+const rateDate=rate=>rate.effectiveFrom?new Date(rate.effectiveFrom).toLocaleDateString('en-PH',{timeZone:'Asia/Manila',dateStyle:'medium'}):'Current';
 
-const money = new Intl.NumberFormat("en-PH", {
-  style: "currency",
-  currency: "PHP",
-  minimumFractionDigits: 2,
-});
-
-const label = (value) =>
-  String(value || "")
-    .replaceAll("_", " ")
-    .toLowerCase()
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-
-export default function Rates() {
-  const [rates, setRates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [classification, setClassification] = useState("ALL");
-  const [loadStatus, setLoadStatus] = useState("ALL");
-
-  const loadRates = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const response = await api.get("/rates");
-      setRates(Array.isArray(response.data?.data) ? response.data.data : []);
-    } catch (err) {
-      setError(err.response?.data?.message || "Unable to load rates right now.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadRates();
-  }, []);
-
-  const filtered = useMemo(
-    () =>
-      rates.filter((rate) => {
-        if (classification !== "ALL" && rate.classification !== classification) return false;
-        if (loadStatus !== "ALL" && rate.loadStatus !== loadStatus) return false;
-        return true;
-      }),
-    [rates, classification, loadStatus],
-  );
-
-  const grouped = useMemo(() => {
-    const groups = new Map();
-    for (const rate of filtered) {
-      const key = rate.name || "Other";
-      if (!groups.has(key)) groups.set(key, []);
-      groups.get(key).push(rate);
-    }
-    return [...groups.entries()];
-  }, [filtered]);
-
-  return (
-    <main className="min-h-[calc(100vh-72px)] bg-background">
-      <section className="border-b border-border bg-white">
-        <div className="mx-auto max-w-[1480px] px-5 py-14 sm:px-8 lg:px-10 lg:py-16">
-          <div className="max-w-3xl">
-            <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-brand-red">Rate Schedule</p>
-            <h1 className="mt-3 text-4xl font-extrabold tracking-[-0.04em] text-brand-ink sm:text-5xl">
-              Current Container Rates
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-              Review the active rates configured by Trans Roadway Logistics Inc. Rates are organized by transaction classification, load status, container size, and collection point.
-            </p>
-          </div>
-        </div>
+/** Mirrors only active effective rates returned by the Express /api/rates controller. */
+export default function Rates(){
+  const [rates,setRates]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState('');
+  const [classification,setClassification]=useState('LOCAL'),[category,setCategory]=useState('STANDARD'),[load,setLoad]=useState('EMPTY'),[size,setSize]=useState('20FT');
+  const refresh=useCallback(async()=>{setLoading(true);setError('');try{const response=await api.get('/rates');const list=response.data?.data;if(!Array.isArray(list))throw new Error('Invalid rate data from server.');setRates(list)}catch(e){setError(e.response?.data?.message||e.message||'Unable to load rate schedule.');setRates([])}finally{setLoading(false)}},[]);
+  useEffect(()=>{refresh()},[refresh]);
+  useEffect(()=>{if(category==='REEFER')setLoad('EMPTY')},[category]);
+  const applicable=useMemo(()=>{
+    const matched=rates.filter(rate=>rate.classification===classification && (rate.containerCategory||'STANDARD')===category && rate.loadStatus===load && ['ALL',size].includes(rate.containerSize));
+    // Exact size has priority over ALL, exactly as server-side billing does.
+    const chosen=new Map();
+    for(const rate of matched){const key=`${rate.collectionPoint}:${rate.name}`;const prior=chosen.get(key);if(!prior||(prior.containerSize==='ALL'&&rate.containerSize===size))chosen.set(key,rate)}
+    return [...chosen.values()].sort((a,b)=>a.collectionPoint.localeCompare(b.collectionPoint)||a.name.localeCompare(b.name));
+  },[rates,classification,category,load,size]);
+  const group=point=>applicable.filter(r=>r.collectionPoint===point);
+  return <main className="min-h-[calc(100vh-72px)] bg-background">
+    <section className="border-b border-border bg-white"><div className="mx-auto max-w-[1480px] px-5 py-14 sm:px-8 lg:px-10"><p className="text-xs font-extrabold uppercase tracking-[0.2em] text-brand-red">Current Rate Schedule</p><h1 className="mt-3 text-4xl font-extrabold tracking-tight text-brand-ink sm:text-5xl">Container Rates</h1><p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Current applicable rates come directly from Admin Rate Setup. Select the container classification, category, condition, and size to see the applicable schedule.</p></div></section>
+    <div className="mx-auto max-w-[1480px] space-y-6 px-5 py-8 sm:px-8 lg:px-10">
+      <section className="grid gap-3 rounded-2xl border bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
+      {[["Classification",classification,setClassification,[['LOCAL','Local'],['INTERNATIONAL','International']]],["Container category",category,setCategory,[['STANDARD','Standard / Non-reefer'],['REEFER','Reefer']]],["Load status",load,setLoad,[['EMPTY','Empty'],['LOADED','Loaded']]],["Container size",size,setSize,[['20FT','20FT'],['40FT','40FT']]]].map(([label,value,set,options])=><label key={label} className="grid gap-1 text-sm font-semibold"><span>{label}</span><select value={value} onChange={e=>set(e.target.value)} className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3">{options.map(([v,text])=><option key={v} value={v} disabled={category==='REEFER'&&v==='LOADED'}>{text}</option>)}</select></label>)}
+      <div className="flex items-end"><button type="button" onClick={refresh} disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border bg-white px-4 text-sm font-bold text-brand-ink hover:bg-muted disabled:opacity-50"><RefreshCw size={17}/>Refresh Rates</button></div>
       </section>
-
-      <section className="mx-auto max-w-[1480px] px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-        <div className="flex flex-col gap-4 rounded-[22px] border border-border bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {classificationOptions.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => setClassification(option)}
-                className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
-                  classification === option
-                    ? "bg-brand-600 text-white"
-                    : "bg-muted text-muted-foreground hover:text-brand-ink"
-                }`}
-              >
-                {option === "ALL" ? "All Classifications" : label(option)}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {loadOptions.map((option) => (
-              <button
-                key={option}
-                type="button"
-                onClick={() => setLoadStatus(option)}
-                className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
-                  loadStatus === option
-                    ? "bg-brand-red text-white"
-                    : "bg-muted text-muted-foreground hover:text-brand-ink"
-                }`}
-              >
-                {option === "ALL" ? "All Load Status" : label(option)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="mt-8"><TableSkeleton rows={6} columns={5} /></div>
-        ) : error ? (
-          <div className="mt-8 rounded-[22px] border border-red-200 bg-red-50 p-8 text-center">
-            <p className="font-bold text-red-700">{error}</p>
-            <button
-              type="button"
-              onClick={loadRates}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-ink px-4 py-2.5 font-bold text-white"
-            >
-              <RefreshCw size={16} /> Try Again
-            </button>
-          </div>
-        ) : grouped.length === 0 ? (
-          <div className="mt-8 rounded-[22px] border border-dashed border-border bg-white p-12 text-center">
-            <Banknote className="mx-auto text-muted-foreground" size={34} />
-            <h2 className="mt-4 text-xl font-extrabold text-brand-ink">No active rates found</h2>
-            <p className="mt-2 text-sm text-muted-foreground">There are no rates matching the selected filters.</p>
-          </div>
-        ) : (
-          <div className="mt-8 grid gap-6">
-            {grouped.map(([name, rows]) => (
-              <section key={name} className="overflow-hidden rounded-[24px] border border-border bg-white shadow-sm">
-                <div className="flex flex-col gap-3 border-b border-border bg-muted px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-brand-red">Rate Name</p>
-                    <h2 className="mt-1 text-2xl font-extrabold text-brand-ink">{name}</h2>
-                  </div>
-                  <span className="w-fit rounded-full bg-white px-3 py-1.5 text-xs font-bold text-muted-foreground ring-1 ring-inset ring-border">
-                    {rows.length} {rows.length === 1 ? "rate" : "rates"}
-                  </span>
-                </div>
-
-                <div className="hidden grid-cols-[1.1fr_1fr_0.8fr_1fr_1fr] gap-4 border-b border-border px-6 py-3 text-xs font-extrabold uppercase tracking-[0.12em] text-muted-foreground md:grid">
-                  <span>Classification</span>
-                  <span>Load Status</span>
-                  <span>Container</span>
-                  <span>Amount</span>
-                  <span>Collection</span>
-                </div>
-
-                <div className="divide-y divide-border">
-                  {rows.map((rate) => (
-                    <article
-                      key={rate.id}
-                      className="grid gap-4 px-6 py-5 md:grid-cols-[1.1fr_1fr_0.8fr_1fr_1fr] md:items-center"
-                    >
-                      <div>
-                        <span className="md:hidden text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground">Classification</span>
-                        <p className="mt-1 font-bold text-brand-ink md:mt-0">{label(rate.classification)}</p>
-                      </div>
-                      <div>
-                        <span className="md:hidden text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground">Load Status</span>
-                        <p className="mt-1 font-semibold text-brand-ink md:mt-0">{label(rate.loadStatus)}</p>
-                      </div>
-                      <div>
-                        <span className="md:hidden text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground">Container</span>
-                        <p className="mt-1 font-semibold text-brand-ink md:mt-0">{rate.containerSize === "ALL" ? "All Sizes" : rate.containerSize}</p>
-                      </div>
-                      <div>
-                        <span className="md:hidden text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground">Amount</span>
-                        <p className="mt-1 text-lg font-extrabold text-brand-600 md:mt-0">{money.format(Number(rate.amount || 0))}</p>
-                      </div>
-                      <div>
-                        <span className="md:hidden text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground">Collection</span>
-                        <div className="mt-1 flex items-center gap-2 font-semibold text-brand-ink md:mt-0">
-                          <MapPin size={16} className="text-brand-red" />
-                          {rate.collectionPoint === "GATE_IN" ? "Gate-in" : "Gate-out"}
-                        </div>
-                      </div>
-                      {rate.description && (
-                        <p className="text-sm leading-6 text-muted-foreground md:col-span-5">
-                          {rate.description}
-                        </p>
-                      )}
-                    </article>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        )}
-
-        {!loading && !error && rates.length > 0 && (
-          <div className="mt-8 flex items-start gap-3 rounded-[20px] border border-border bg-white p-5 text-sm leading-6 text-muted-foreground">
-            <PackageCheck className="mt-0.5 shrink-0 text-brand-600" size={20} />
-            <p>
-              Only currently active rates are displayed here. Final charges are based on the applicable transaction details and the configured collection point.
-            </p>
-          </div>
-        )}
-      </section>
-    </main>
-  );
+      {category==='REEFER'&&<p className="rounded-xl bg-blue-50 p-3 text-sm text-blue-800">Reefer rates are available for Empty containers only.</p>}
+      {error&&<p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{error}</p>}
+      {loading?<TableSkeleton rows={7} columns={6}/>:!error&&applicable.length===0?<div className="rounded-2xl border border-dashed bg-white p-10 text-center"><Banknote size={32} className="mx-auto text-muted-foreground"/><h2 className="mt-4 text-xl font-bold">No active rates for this combination</h2><p className="mt-2 text-sm text-muted-foreground">Only active, currently effective rates are shown. Contact the terminal office for any missing classification.</p></div>:['GATE_IN','GATE_OUT'].map(point=><section key={point} className="overflow-hidden rounded-2xl border bg-white shadow-sm"><header className="flex items-center gap-3 border-b bg-slate-50 p-5">{point==='GATE_IN'?<ArrowDownToLine size={22} className="text-brand-700"/>:<ArrowUpFromLine size={22} className="text-brand-700"/>}<div><h2 className="text-xl font-extrabold">{point==='GATE_IN'?'Gate-in charges':'Gate-out charges'}</h2><p className="text-xs text-muted-foreground">{display(classification)} · {display(category)} · {display(load)} · {size}</p></div></header>
+       {group(point).length===0?<p className="p-6 text-sm text-muted-foreground">No active rates configured for this collection point.</p>:<><div className="hidden grid-cols-[1.4fr_1fr_1fr_1fr_1fr_1fr] gap-4 border-b bg-white p-4 text-xs font-extrabold uppercase tracking-wider text-muted-foreground lg:grid"><span>Service</span><span>Rate amount</span><span>Rate basis</span><span>VAT treatment</span><span>Application</span><span>Effective date</span></div><div className="divide-y">{group(point).map(rate=><article key={rate.id} className="grid gap-3 p-4 text-sm lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr_1fr] lg:items-center lg:gap-4"><div><p className="font-bold text-brand-ink">{rate.name}</p><p className="mt-1 text-xs text-muted-foreground">{rate.containerSize==='ALL'?'Both sizes':rate.containerSize}{rate.description?` · ${rate.description}`:''}</p></div><p className="text-lg font-extrabold text-brand-700">{money.format(Number(rate.amount||0))}</p><p>{basis(rate)}</p><p>{tax(rate)}</p><p><span className="rounded-lg bg-muted px-2 py-1 text-xs font-semibold">{rate.billingMode==='OPTIONAL'?'Optional / manual':'Fixed / automatic'}</span></p><p className="text-muted-foreground">{rateDate(rate)}</p></article>)}</div></>}
+      </section>)}
+      <p className="flex items-start gap-3 rounded-xl border bg-white p-4 text-sm leading-6 text-muted-foreground"><Info size={19} className="mt-1 shrink-0"/>Rates shown are the active service amounts before any transaction-specific VAT and overtime conditions. Storage is billed per applicable day; overnight overtime is calculated automatically using the transaction schedule (18:00 to 08:00). Optional charges apply only when selected. The confirmed invoice, rather than this rate reference, is the payment amount due.</p>
+    </div>
+  </main>;
 }

@@ -6,6 +6,7 @@ import { useSocket } from "../../context/SocketContext";
 import { useToast } from "../../context/ToastContext";
 import { api } from "../../lib/api";
 import TableSkeleton from "../../components/ui/TableSkeleton";
+import {downloadClientFile} from "../../lib/clientFiles";
 
 const labels = {
   containerNumber: "Container Number", containerSize: "Container Size", containerType: "Container Type", loadStatus: "Load Status",
@@ -29,11 +30,13 @@ function DetailPanel({ title, keys, booking, Icon }) {
 export default function PreAdviceDetail() {
   const { id } = useParams();
   const [booking, setBooking] = useState(null);
+  const [invoices,setInvoices]=useState([]);
   const [loading, setLoading] = useState(true);
   const { socket } = useSocket();
   const { toast } = useToast();
 
   useEffect(() => {
+    api.get('/invoices').then(r=>setInvoices((r.data.data.items||[]).filter(i=>String(i.booking)===String(id)))).catch(()=>{});
     api.get(`/pre-advice/${id}`).then((response) => setBooking(response.data.data.item)).catch((error) => toast(error.response?.data?.message || "Unable to load booking", "error")).finally(() => setLoading(false));
   }, [id, toast]);
 
@@ -74,7 +77,12 @@ export default function PreAdviceDetail() {
       </header>
 
       <div className="space-y-5 p-4 sm:p-6">
-        <BookingProgressTimeline booking={booking} />
+        <BookingProgressTimeline booking={booking} invoices={invoices} />
+        {['READY_FOR_GATE_IN','GATE_IN_PAYMENT_SUBMITTED'].includes(booking.workflowStage)&&!booking.gateIn?.actualGateInAt&&<div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900"><strong>Advance Gate-in payment is available now.</strong><p className="mt-1">You do not need to wait for your scheduled Gate-in date to pay. The container will only be physically gated in after admin payment verification and inspection.</p>{booking.gateIn?.payment?.status==='REJECTED'&&<p className="mt-2 font-semibold text-red-700">Payment rejected: submit a corrected reference or payment proof from your invoice.</p>}</div>}<div className="flex gap-3"><Link to="/portal/invoices" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white">View Gate-in Invoice & Pay Now</Link></div>
+        {booking.preAdviceReview?.reason&&<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><strong>Pre-advice rejected:</strong> {booking.preAdviceReview.reason}</div>}
+        {booking.gateOut?.payment?.status==='REJECTED'&&<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><strong>Gate-out rejected:</strong> {booking.gateOut.remarks}</div>}
+        {!!booking.gateIn?.actualGateInAt&&<div className="rounded-xl border bg-muted p-4 text-sm"><strong>Time in terminal:</strong> {Math.max(1,Math.ceil((new Date(booking.gateOut?.releasedAt||Date.now()).getTime()-new Date(booking.gateIn.actualGateInAt).getTime())/86400000))} day(s) {booking.gateOut?.releasedAt?'(final)':'(current)'}</div>}
+        {invoices.length>0&&<section className="rounded-2xl border p-5"><h2 className="font-extrabold">Linked invoices & receipts</h2><div className="mt-3 space-y-3">{invoices.map(i=><div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 text-sm" key={i._id}><span><strong>{i.number}</strong> · {i.type.replace('_','-')} · {i.status.replaceAll('_',' ')}</span><div className="flex gap-2"><button type="button" className="font-bold text-brand-700" onClick={()=>downloadClientFile(`/invoices/${i._id}/pdf`)}>Invoice PDF</button>{i.status==='PAID'&&<button type="button" className="font-bold text-brand-700" onClick={()=>downloadClientFile(`/invoices/${i._id}/receipt`)}>Receipt PDF</button>}</div></div>)}</div></section>}
 
         <div className="grid gap-5 xl:grid-cols-2">
           <DetailPanel title="Container Details" Icon={Package} keys={["containerNumber", "containerSize", "containerType", "loadStatus", "transactionClassification"]} booking={booking} />

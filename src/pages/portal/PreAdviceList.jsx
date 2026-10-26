@@ -7,6 +7,7 @@ import { useSocket } from "../../context/SocketContext";
 import { useToast } from "../../context/ToastContext";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import Pagination from "../../components/ui/Pagination";
+import GateOutRequest from "../../components/booking/GateOutRequest";
 
 const statuses = ["DRAFT", "SUBMITTED", "SCHEDULED", "READY_FOR_GATE_IN", "GATED_IN", "COMPLETED", "CANCELLED"];
 const label = (value) => value?.replaceAll("_", " ") || "—";
@@ -23,6 +24,7 @@ function SummaryTile({ title, value, Icon, tone, active, onClick }) {
 export default function PreAdviceList() {
   const [params] = useSearchParams();
   const [rows, setRows] = useState([]);
+  const [gateOutBooking,setGateOutBooking]=useState(null);
   const [q, setQ] = useState(() => params.get("q") || "");
   const [debouncedQ, setDebouncedQ] = useState(q);
   const [status, setStatus] = useState("");
@@ -89,6 +91,7 @@ export default function PreAdviceList() {
   const canModify = (row) => row.workflowStage === "BOOKING_SUBMITTED" && ["DRAFT", "SUBMITTED"].includes(row.status);
   const canCancel = canModify;
   const verified = user?.company?.verificationStatus === "VERIFIED";
+  const canRequestGateOut=row=>row.workflowStage==="STORAGE"&&row.storage?.status==="STORED"&&!row.gateOut?.approvedAt&&!row.gateOut?.releasedAt&&row.gateOut?.payment?.status!=="SUBMITTED";
 
   return (
     <div className="space-y-5">
@@ -106,6 +109,7 @@ export default function PreAdviceList() {
         <SummaryTile title="Completed" value={summary.complete} Icon={CheckCircle2} tone="border-emerald-100 bg-emerald-50 text-emerald-700" active={status === "COMPLETED"} onClick={() => changeStatus("COMPLETED")} />
       </div>
 
+      {gateOutBooking&&<GateOutRequest booking={gateOutBooking} onClose={()=>setGateOutBooking(null)} onUpdated={load}/>}
       <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><input className="input pl-9" placeholder="Search booking ID, container, or shipping line" value={q} onChange={(event) => setQ(event.target.value)} /></div>
@@ -119,7 +123,7 @@ export default function PreAdviceList() {
             <div className="overflow-x-auto">
               <table className="min-w-[900px] w-full text-sm">
                 <thead className="bg-muted/70 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground"><tr>{["Booking Reference", "Container", "Gate Schedule", "Shipping Line", "Status", "Action"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}</tr></thead>
-                <tbody>{rows.map((row) => <tr key={row._id} className="border-b border-border last:border-b-0 hover:bg-muted/40"><td className="px-4 py-4"><Link to={`/portal/pre-advice/${row._id}`} className="font-extrabold text-brand-700">{row.bookingReference}</Link></td><td className="px-4 py-4"><div className="font-bold text-foreground">{row.containerNumber}</div><div className="mt-1 text-xs text-muted-foreground">{row.containerSize} · {row.containerType}</div></td><td className="px-4 py-4"><div>{row.scheduledGateDateIn || "—"}</div><div className="mt-1 text-xs text-muted-foreground">{row.scheduledGateTimeIn || ""}</div></td><td className="px-4 py-4">{row.shippingLine || "—"}</td><td className="px-4 py-4"><span className="badge bg-muted text-foreground">{label(row.status)}</span></td><td className="px-4 py-4"><div className="flex flex-wrap items-center justify-end gap-3"><Link to={`/portal/pre-advice/${row._id}`} className="font-bold text-brand-700">View</Link>{canModify(row) && <Link to={`/portal/pre-advice/${row._id}/edit`} className="font-bold text-muted-foreground">Edit</Link>}{canCancel(row) && <button type="button" onClick={() => cancel(row)} className="inline-flex items-center gap-1 font-bold text-danger-600"><Ban className="size-4" />Cancel</button>}</div></td></tr>)}</tbody>
+                <tbody>{rows.map((row) => <tr key={row._id} className="border-b border-border last:border-b-0 hover:bg-muted/40"><td className="px-4 py-4"><Link to={`/portal/pre-advice/${row._id}`} className="font-extrabold text-brand-700">{row.bookingReference}</Link></td><td className="px-4 py-4"><div className="font-bold text-foreground">{row.containerNumber}</div><div className="mt-1 text-xs text-muted-foreground">{row.containerSize} · {row.containerType}</div></td><td className="px-4 py-4"><div>{row.scheduledGateDateIn || "—"}</div><div className="mt-1 text-xs text-muted-foreground">{row.scheduledGateTimeIn || ""}</div></td><td className="px-4 py-4">{row.shippingLine || "—"}</td><td className="px-4 py-4"><span className="badge bg-muted text-foreground">{label(row.status)}</span></td><td className="px-4 py-4"><div className="flex flex-wrap items-center justify-end gap-3"><Link to={`/portal/pre-advice/${row._id}`} className="font-bold text-brand-700">View</Link>{canRequestGateOut(row) && <button type="button" onClick={()=>setGateOutBooking(row)} className="rounded-lg bg-brand-700 px-3 py-2 text-xs font-bold text-white">Request Gate-out</button>}{row.workflowStage==="GATE_OUT_PAYMENT_SUBMITTED"&&<button disabled title="Gate-out request pending admin approval" className="text-xs font-bold text-muted-foreground">Gate-out Pending</button>}{canModify(row) && <Link to={`/portal/pre-advice/${row._id}/edit`} className="font-bold text-muted-foreground">Edit</Link>}{canCancel(row) && <button type="button" onClick={() => cancel(row)} className="inline-flex items-center gap-1 font-bold text-danger-600"><Ban className="size-4" />Cancel</button>}</div></td></tr>)}</tbody>
               </table>
             </div>
           )}

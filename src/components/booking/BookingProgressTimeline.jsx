@@ -62,7 +62,7 @@ function entriesFor(group, history) {
     .sort((a, b) => DETAILED_ORDER.indexOf(a.stage) - DETAILED_ORDER.indexOf(b.stage));
 }
 
-export default function BookingProgressTimeline({ booking }) {
+export default function BookingProgressTimeline({ booking, invoices = [] }) {
   const history = booking?.workflowHistory || [];
   const currentStage = booking?.workflowStage || "BOOKING_SUBMITTED";
   const currentGroupIndex = groupIndexFor(currentStage);
@@ -122,6 +122,8 @@ export default function BookingProgressTimeline({ booking }) {
                     })}
                   </div>
 
+                  {group.key === "GATE_IN" && <div className="mt-3 rounded-lg border bg-slate-50 px-3 py-3 text-xs"><b>Gate-in payment:</b> {booking.gateIn?.payment?.status?.replaceAll('_',' ')||'Not submitted'}{booking.gateIn?.payment?.submittedAt&&<p className="mt-1">Submitted {formatDate(booking.gateIn.payment.submittedAt)} — payment submission does not mean verification.</p>}{invoices.filter(i=>i.type==='GATE_IN').map(i=><div key={i._id} className="mt-1">Invoice {i.number} · <strong>{i.status.replaceAll('_',' ')}</strong>{i.status==='PAID'&&<span className="ml-2 text-emerald-700">Payment verified — receipt available in Invoices</span>}</div>)}</div>}
+                  {group.key === "GATE_OUT" && invoices.filter(i=>i.type==='GATE_OUT').map(i=><div key={i._id} className="mt-2 rounded-lg border bg-slate-50 px-3 py-2 text-xs">Gate-out invoice {i.number} · <b>{i.status.replaceAll('_',' ')}</b></div>)}
                   {group.key === "YARD" && booking?.storage?.status === "STORED" && (
                     <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50/60 px-3 py-2 text-xs">
                       <span className="font-bold text-brand-700">Storage location:</span>{" "}
