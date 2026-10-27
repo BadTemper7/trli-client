@@ -18,12 +18,16 @@ import Company from "./pages/portal/Company";
 import Documents from "./pages/portal/Documents";
 import Account from "./pages/portal/Account";
 import Invoices from "./pages/portal/Invoices";
+import GateOutRequests from "./pages/portal/GateOutRequests";
+import Notifications from "./pages/portal/Notifications";
 import PageHelmet from "./components/layout/PageHelmet";
 
 function RouteLoading() {
   return (
-    <div className="grid min-h-[60vh] place-items-center bg-slate-50">
-      Loading...
+    <div className="mx-auto w-full max-w-5xl space-y-4 p-6" role="status" aria-label="Loading page">
+      <div className="h-10 w-1/3 animate-pulse rounded-xl bg-muted" />
+      <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+      <div className="grid gap-3 sm:grid-cols-3">{[0,1,2].map(i => <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted" />)}</div>
     </div>
   );
 }
@@ -86,6 +90,8 @@ export default function App() {
             <Route path="pre-advice/:id/edit" element={<PreAdviceForm />} />
             <Route path="company" element={<Company />} />
             <Route path="invoices" element={<Invoices />} />
+            <Route path="gate-out-requests" element={<GateOutRequests />} />
+            <Route path="notifications" element={<Notifications />} />
             <Route path="documents" element={<Documents />} />
             <Route path="account" element={<Account />} />
           </Route>

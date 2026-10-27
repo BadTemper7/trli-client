@@ -7,6 +7,7 @@ import {
   Menu,
   Settings,
   Search,
+  ReceiptText,
   UserRound,
   X,
 } from "lucide-react";
@@ -105,8 +106,16 @@ export default function SiteHeader() {
         return [item, ...current].slice(0, 100);
       });
     };
+    // A reconnect must refresh notifications that may have arrived while offline.
+    // The existing notification loader reacts to notificationsLoaded=false.
+    const onConnected = () => setNotificationsLoaded(false);
+
     socket.on("notification:new", handleNotification);
-    return () => socket.off("notification:new", handleNotification);
+    socket.on("connect", onConnected);
+    return () => {
+      socket.off("notification:new", handleNotification);
+      socket.off("connect", onConnected);
+    };
   }, [socket, user]);
 
   useEffect(() => {
@@ -135,7 +144,7 @@ export default function SiteHeader() {
     try {
       await api.patch(`/notifications/${id}/read`);
     } catch {
-      // Keep UI responsive. A later refresh will reconcile persisted state.
+      setNotificationsLoaded(false);
     }
   };
 
@@ -146,7 +155,7 @@ export default function SiteHeader() {
     try {
       await api.patch("/notifications/read-all");
     } catch {
-      // A later refresh will reconcile persisted state.
+      setNotificationsLoaded(false);
     }
   };
 
@@ -198,7 +207,7 @@ export default function SiteHeader() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                `rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                `rounded-lg px-2.5 py-2.5 text-xs font-semibold transition-colors xl:px-3.5 xl:text-sm ${
                   isActive
                     ? "bg-brand-50 text-brand-700"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -226,7 +235,7 @@ export default function SiteHeader() {
                   className="w-[155px] bg-transparent text-xs font-medium text-foreground outline-none placeholder:text-muted-foreground"
                 />
               </form>
-              <div className="relative hidden sm:block" ref={notificationsRef}>
+              <div className="relative" ref={notificationsRef}>
                 <button
                   type="button"
                   onClick={() => {
@@ -246,7 +255,7 @@ export default function SiteHeader() {
                 </button>
 
                 {notificationsOpen && (
-                  <div className="absolute right-0 top-[calc(100%+10px)] w-[360px] overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_24px_60px_-20px_rgba(15,23,42,0.32)]">
+                  <div className="absolute right-0 top-[calc(100%+10px)] w-[min(360px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_24px_60px_-20px_rgba(15,23,42,0.32)]">
                     <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
                       <div>
                         <p className="text-sm font-bold text-foreground">
@@ -316,6 +325,7 @@ export default function SiteHeader() {
                         ))
                       )}
                     </div>
+                    <Link to="/portal/notifications" onClick={() => setNotificationsOpen(false)} className="block border-t border-border px-4 py-3 text-center text-xs font-bold text-brand-700 hover:bg-muted">View all notifications</Link>
                   </div>
                 )}
               </div>
@@ -372,6 +382,14 @@ export default function SiteHeader() {
                       </span>
                     </div>
                     <div className="py-2">
+                      <Link
+                        to="/portal/invoices"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
+                      >
+                        <ReceiptText className="size-4 text-muted-foreground" />{" "}
+                        Invoices &amp; Payment History
+                      </Link>
                       <Link
                         to="/portal/company"
                         onClick={() => setProfileOpen(false)}
@@ -460,6 +478,13 @@ export default function SiteHeader() {
             ))}
             {user ? (
               <div className="mt-2 grid gap-1 border-t border-border pt-3">
+                <Link
+                  to="/portal/invoices"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-lg px-4 py-3 text-sm font-semibold text-foreground hover:bg-muted"
+                >
+                  Invoices &amp; Payment History
+                </Link>
                 <Link
                   to="/portal/company"
                   onClick={() => setMobileOpen(false)}

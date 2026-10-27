@@ -7,10 +7,12 @@ import QuickReview from "../../components/portal/QuickReview";
 import RecentActivity from "../../components/portal/RecentActivity";
 import { useAuth } from "../../context/AuthContext";
 import { api } from "../../lib/api";
+import NextActionCard from "../../components/booking/NextActionCard";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(false);
   const status = user?.company?.verificationStatus || "PENDING";
 
@@ -18,8 +20,8 @@ export default function Dashboard() {
     let active = true;
     if (status !== "VERIFIED") return undefined;
     setLoading(true);
-    api.get("/pre-advice")
-      .then((response) => { if (active) setBookings(response.data?.data?.items || []); })
+    api.get("/pre-advice", { params: { limit: 50 } })
+      .then((response) => { if (active) { setBookings(response.data?.data?.items || []); setSummary(response.data?.data?.summary || null); } })
       .catch(() => { if (active) setBookings([]); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -56,7 +58,8 @@ export default function Dashboard() {
       <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(300px,1fr)] xl:items-start">
         <div className="min-w-0 space-y-5">
           <PortalHero verificationStatus={status} />
-          <OverviewMetrics bookings={bookings} />
+          <OverviewMetrics bookings={bookings} summary={summary} />
+          {latest && <NextActionCard booking={latest} />}
           <QuickActions canCreate={status === "VERIFIED"} />
           <RecentActivity bookings={bookings} />
         </div>

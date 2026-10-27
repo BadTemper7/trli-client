@@ -2,9 +2,9 @@ import { ArrowRight, FilePlus2, ListChecks, MapPinned } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const actions = [
-  { title: "Submit Pre-Advice", text: "Create a new booking with container and gate schedule details.", to: "/portal/pre-advice/new", Icon: FilePlus2, pos: "center 58%" },
+  { title: "New Container Booking", text: "Create a new booking with container and gate schedule details.", to: "/portal/pre-advice/new", Icon: FilePlus2, pos: "center 58%" },
   { title: "My Bookings", text: "Review booking status, container progress, and updates.", to: "/portal/pre-advice", Icon: ListChecks, pos: "center 46%" },
-  { title: "Gate Schedule", text: "Track your scheduled gate-in time and booking readiness.", to: "/portal/pre-advice", Icon: MapPinned, pos: "center 63%" },
+  { title: "Payments & Receipts", text: "Check invoices, submit payment proof and download receipts.", to: "/portal/invoices", Icon: MapPinned, pos: "center 63%" },
 ];
 
 export default function QuickActions({ canCreate = true }) {

@@ -8,6 +8,7 @@ import { useToast } from "../../context/ToastContext";
 import TableSkeleton from "../../components/ui/TableSkeleton";
 import Pagination from "../../components/ui/Pagination";
 import GateOutRequest from "../../components/booking/GateOutRequest";
+import { bookingNextAction, isGateOutEligible } from "../../lib/bookingJourney";
 
 const statuses = ["DRAFT", "SUBMITTED", "SCHEDULED", "READY_FOR_GATE_IN", "GATED_IN", "COMPLETED", "CANCELLED"];
 const label = (value) => value?.replaceAll("_", " ") || "—";
@@ -66,11 +67,13 @@ export default function PreAdviceList() {
     socket.on("pre-advice:updated", refresh);
     socket.on("pre-advice:status-updated", refresh);
     socket.on("pre-advice:workflow-updated", refresh);
+    socket.on("connect", refresh);
     return () => {
       socket.off("pre-advice:created", refresh);
       socket.off("pre-advice:updated", refresh);
       socket.off("pre-advice:status-updated", refresh);
       socket.off("pre-advice:workflow-updated", refresh);
+      socket.off("connect", refresh);
     };
   }, [socket, load]);
 
@@ -91,12 +94,12 @@ export default function PreAdviceList() {
   const canModify = (row) => row.workflowStage === "BOOKING_SUBMITTED" && ["DRAFT", "SUBMITTED"].includes(row.status);
   const canCancel = canModify;
   const verified = user?.company?.verificationStatus === "VERIFIED";
-  const canRequestGateOut=row=>row.workflowStage==="STORAGE"&&row.storage?.status==="STORED"&&!row.gateOut?.approvedAt&&!row.gateOut?.releasedAt&&row.gateOut?.payment?.status!=="SUBMITTED";
+  const canRequestGateOut = isGateOutEligible;
 
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand-700">Booking Management</p><h1 className="mt-1 text-3xl font-extrabold tracking-[-.04em] text-foreground">My Bookings</h1><p className="mt-1 text-sm text-muted-foreground">Track pre-advice, schedules, and container progress.</p></div>
+        <div><p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand-700">Booking Management</p><h1 className="mt-1 text-3xl font-extrabold tracking-[-.04em] text-foreground">My Bookings</h1><p className="mt-1 text-sm text-muted-foreground">All your bookings in one place. Check your next action, payment status, and container journey.</p></div>
         {verified && <Link to="/portal/pre-advice/new" className="btn btn-primary w-fit">+ New Booking</Link>}
       </div>
 
@@ -113,7 +116,7 @@ export default function PreAdviceList() {
       <section className="rounded-2xl border border-border bg-surface p-4 shadow-sm sm:p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><input className="input pl-9" placeholder="Search booking ID, container, or shipping line" value={q} onChange={(event) => setQ(event.target.value)} /></div>
-          <select className="input lg:max-w-[230px]" value={status} onChange={(event) => changeStatus(event.target.value)}><option value="">All Statuses</option>{statuses.map((item) => <option key={item} value={item}>{label(item)}</option>)}</select>
+          <select aria-label="Filter booking status" className="input lg:max-w-[230px]" value={status} onChange={(event) => changeStatus(event.target.value)}><option value="">All Statuses</option>{statuses.map((item) => <option key={item} value={item}>{label(item)}</option>)}</select>
         </div>
 
         <div className="mt-4">
@@ -121,9 +124,9 @@ export default function PreAdviceList() {
             <div className="grid min-h-[280px] place-items-center text-center"><div><CalendarDays className="mx-auto size-10 text-muted-foreground/40" /><h3 className="mt-3 font-bold">No bookings found</h3><p className="mt-1 text-sm text-muted-foreground">Your booking records will appear here.</p></div></div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-[900px] w-full text-sm">
-                <thead className="bg-muted/70 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground"><tr>{["Booking Reference", "Container", "Gate Schedule", "Shipping Line", "Status", "Action"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}</tr></thead>
-                <tbody>{rows.map((row) => <tr key={row._id} className="border-b border-border last:border-b-0 hover:bg-muted/40"><td className="px-4 py-4"><Link to={`/portal/pre-advice/${row._id}`} className="font-extrabold text-brand-700">{row.bookingReference}</Link></td><td className="px-4 py-4"><div className="font-bold text-foreground">{row.containerNumber}</div><div className="mt-1 text-xs text-muted-foreground">{row.containerSize} · {row.containerType}</div></td><td className="px-4 py-4"><div>{row.scheduledGateDateIn || "—"}</div><div className="mt-1 text-xs text-muted-foreground">{row.scheduledGateTimeIn || ""}</div></td><td className="px-4 py-4">{row.shippingLine || "—"}</td><td className="px-4 py-4"><span className="badge bg-muted text-foreground">{label(row.status)}</span></td><td className="px-4 py-4"><div className="flex flex-wrap items-center justify-end gap-3"><Link to={`/portal/pre-advice/${row._id}`} className="font-bold text-brand-700">View</Link>{canRequestGateOut(row) && <button type="button" onClick={()=>setGateOutBooking(row)} className="rounded-lg bg-brand-700 px-3 py-2 text-xs font-bold text-white">Request Gate-out</button>}{row.workflowStage==="GATE_OUT_PAYMENT_SUBMITTED"&&<button disabled title="Gate-out request pending admin approval" className="text-xs font-bold text-muted-foreground">Gate-out Pending</button>}{canModify(row) && <Link to={`/portal/pre-advice/${row._id}/edit`} className="font-bold text-muted-foreground">Edit</Link>}{canCancel(row) && <button type="button" onClick={() => cancel(row)} className="inline-flex items-center gap-1 font-bold text-danger-600"><Ban className="size-4" />Cancel</button>}</div></td></tr>)}</tbody>
+              <table className="min-w-[1060px] w-full text-sm">
+                <thead className="bg-muted/70 text-left text-xs font-bold uppercase tracking-wide text-muted-foreground"><tr>{["Booking Reference", "Container", "Gate Schedule", "Booking Status", "Next step / Responsible", "Action"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}</tr></thead>
+                <tbody>{rows.map((row) => <tr key={row._id} className="border-b border-border last:border-b-0 hover:bg-muted/40"><td className="px-4 py-4"><Link to={`/portal/pre-advice/${row._id}`} className="font-extrabold text-brand-700">{row.bookingReference}</Link></td><td className="px-4 py-4"><div className="font-bold text-foreground">{row.containerNumber}</div><div className="mt-1 text-xs text-muted-foreground">{row.containerSize} · {row.containerType}</div></td><td className="px-4 py-4"><div>{row.scheduledGateDateIn || "—"}</div><div className="mt-1 text-xs text-muted-foreground">{row.scheduledGateTimeIn || ""}</div></td><td className="px-4 py-4"><span className="badge bg-muted text-foreground">{label(row.status)}</span><p className="mt-1 text-xs text-muted-foreground">{label(row.workflowStage)}</p></td><td className="px-4 py-4"><p className="max-w-[235px] font-bold text-foreground">{bookingNextAction(row).title}</p><p className="mt-1 text-xs text-muted-foreground">{bookingNextAction(row).owner}</p></td><td className="px-4 py-4"><div className="flex flex-wrap items-center justify-end gap-3"><Link to={`/portal/pre-advice/${row._id}`} className="font-bold text-brand-700">View Progress</Link>{canRequestGateOut(row) && <button type="button" onClick={()=>setGateOutBooking(row)} className="rounded-lg bg-brand-700 px-3 py-2 text-xs font-bold text-white">{row.gateOut?.payment?.status === "REJECTED" ? "Resubmit Gate-out" : "Request Gate-out"}</button>}{row.workflowStage==="GATE_OUT_PAYMENT_SUBMITTED"&&<span title="Awaiting combined payment verification and gate-out approval" className="rounded-md bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700">Under admin review</span>}{canModify(row) && <Link to={`/portal/pre-advice/${row._id}/edit`} className="font-bold text-muted-foreground">Edit</Link>}{canCancel(row) && <button type="button" onClick={() => cancel(row)} className="inline-flex items-center gap-1 font-bold text-danger-600"><Ban className="size-4" />Cancel</button>}</div></td></tr>)}</tbody>
               </table>
             </div>
           )}

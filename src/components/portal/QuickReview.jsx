@@ -1,5 +1,6 @@
 import { ArrowRight, PackageSearch } from "lucide-react";
 import { Link } from "react-router-dom";
+import { bookingNextAction } from "../../lib/bookingJourney";
 
 export default function QuickReview({ booking }) {
   return (
@@ -13,6 +14,7 @@ export default function QuickReview({ booking }) {
           <dl className="mt-4 divide-y divide-border rounded-xl border border-border px-3">
             {[["Booking Reference", booking.bookingReference], ["Status", booking.status?.replaceAll("_", " ")], ["Shipping Line", booking.shippingLine], ["Storage Position", booking.storage?.block?.name ? `${booking.storage.block.name} / B${booking.storage.bay}-R${booking.storage.row}-T${booking.storage.tier}` : "Not assigned"]].map(([label, value]) => <div key={label} className="grid grid-cols-[42%_1fr] gap-3 py-2.5 text-xs"><dt className="text-muted-foreground">{label}</dt><dd className="text-right font-bold text-foreground">{value || "—"}</dd></div>)}
           </dl>
+          <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50/60 p-3 text-xs"><p className="font-extrabold text-brand-700">Next step: {bookingNextAction(booking).title}</p><p className="mt-1 text-muted-foreground">Responsible: {bookingNextAction(booking).owner}</p></div>
           <Link to={`/portal/pre-advice/${booking._id}`} className="btn btn-primary mt-4 w-full">View Container Details <ArrowRight className="size-4" /></Link>
         </>
       ) : (

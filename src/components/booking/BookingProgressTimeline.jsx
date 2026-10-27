@@ -62,7 +62,18 @@ function entriesFor(group, history) {
     .sort((a, b) => DETAILED_ORDER.indexOf(a.stage) - DETAILED_ORDER.indexOf(b.stage));
 }
 
-export default function BookingProgressTimeline({ booking, invoices = [] }) {
+export default function BookingProgressTimeline({ booking, invoices = [], onGateInPayment, onGateOutPayment }) {
+  const gateInInvoice = invoices.find((item) => item.type === "GATE_IN");
+  const gateOutInvoice = invoices.find((item) => item.type === "GATE_OUT");
+  const gateInPaymentStatus = booking?.gateIn?.payment?.status;
+  const gateOutPaymentStatus = booking?.gateOut?.payment?.status;
+  const gateInLabel = gateInInvoice?.status === "PAID" ? "View Gate-in receipt" :
+    gateInInvoice?.status === "PAYMENT_SUBMITTED" || gateInPaymentStatus === "PENDING_VERIFICATION" ? "View Gate-in payment" :
+    gateInPaymentStatus === "REJECTED" ? "Resubmit Gate-in payment" : "Pay Gate-in charges";
+  const gateOutLabel = gateOutInvoice?.status === "PAID" ? "View Gate-out receipt" :
+    gateOutInvoice?.status === "PAYMENT_SUBMITTED" || gateOutPaymentStatus === "PENDING_VERIFICATION" ? "View Gate-out payment" :
+    gateOutPaymentStatus === "REJECTED" ? "Resubmit Gate-out payment" : "Request Gate-out & payment";
+  const paymentLinkClass = "inline-flex items-center text-xs font-bold text-brand-700 underline underline-offset-4 hover:text-brand-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2";
   const history = booking?.workflowHistory || [];
   const currentStage = booking?.workflowStage || "BOOKING_SUBMITTED";
   const currentGroupIndex = groupIndexFor(currentStage);
@@ -122,8 +133,19 @@ export default function BookingProgressTimeline({ booking, invoices = [] }) {
                     })}
                   </div>
 
-                  {group.key === "GATE_IN" && <div className="mt-3 rounded-lg border bg-slate-50 px-3 py-3 text-xs"><b>Gate-in payment:</b> {booking.gateIn?.payment?.status?.replaceAll('_',' ')||'Not submitted'}{booking.gateIn?.payment?.submittedAt&&<p className="mt-1">Submitted {formatDate(booking.gateIn.payment.submittedAt)} — payment submission does not mean verification.</p>}{invoices.filter(i=>i.type==='GATE_IN').map(i=><div key={i._id} className="mt-1">Invoice {i.number} · <strong>{i.status.replaceAll('_',' ')}</strong>{i.status==='PAID'&&<span className="ml-2 text-emerald-700">Payment verified — receipt available in Invoices</span>}</div>)}</div>}
-                  {group.key === "GATE_OUT" && invoices.filter(i=>i.type==='GATE_OUT').map(i=><div key={i._id} className="mt-2 rounded-lg border bg-slate-50 px-3 py-2 text-xs">Gate-out invoice {i.number} · <b>{i.status.replaceAll('_',' ')}</b></div>)}
+                  {group.key === "GATE_IN" && onGateInPayment && (
+                    <div className="mt-3">
+                      <button type="button" className={paymentLinkClass} onClick={onGateInPayment}>{gateInLabel}</button>
+                      {gateInInvoice && <p className="mt-1 text-xs text-muted-foreground">{gateInInvoice.number} · {String(gateInInvoice.status || "UNPAID").replaceAll("_", " ")}</p>}
+                    </div>
+                  )}
+                  {group.key === "GATE_OUT" && onGateOutPayment && (
+                    <div className="mt-3">
+                      <button type="button" className={paymentLinkClass} onClick={onGateOutPayment}>{gateOutLabel}</button>
+                      {gateOutInvoice && <p className="mt-1 text-xs text-muted-foreground">{gateOutInvoice.number} · {String(gateOutInvoice.status || "UNPAID").replaceAll("_", " ")}</p>}
+                    </div>
+                  )}
+
                   {group.key === "YARD" && booking?.storage?.status === "STORED" && (
                     <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50/60 px-3 py-2 text-xs">
                       <span className="font-bold text-brand-700">Storage location:</span>{" "}

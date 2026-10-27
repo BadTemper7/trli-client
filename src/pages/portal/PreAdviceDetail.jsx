@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, CalendarClock, FileText, Package, Truck } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import BookingProgressTimeline from "../../components/booking/BookingProgressTimeline";
@@ -6,7 +6,9 @@ import { useSocket } from "../../context/SocketContext";
 import { useToast } from "../../context/ToastContext";
 import { api } from "../../lib/api";
 import TableSkeleton from "../../components/ui/TableSkeleton";
-import {downloadClientFile} from "../../lib/clientFiles";
+import GateOutRequest from "../../components/booking/GateOutRequest";
+import BookingPaymentModal from "../../components/payment/BookingPaymentModal";
+import { isGateOutEligible } from "../../lib/bookingJourney";
 
 const labels = {
   containerNumber: "Container Number", containerSize: "Container Size", containerType: "Container Type", loadStatus: "Load Status",
@@ -30,23 +32,62 @@ function DetailPanel({ title, keys, booking, Icon }) {
 export default function PreAdviceDetail() {
   const { id } = useParams();
   const [booking, setBooking] = useState(null);
+  const [gateOutOpen, setGateOutOpen] = useState(false);
+  const [paymentModal, setPaymentModal] = useState(null);
   const [invoices,setInvoices]=useState([]);
   const [loading, setLoading] = useState(true);
   const { socket } = useSocket();
   const { toast } = useToast();
 
+  const refresh = useCallback(() => Promise.all([api.get(`/pre-advice/${id}`), api.get('/invoices')]).then(([bookingResponse, invoiceResponse]) => {
+    setBooking(bookingResponse.data?.data?.item || null);
+    setInvoices((invoiceResponse.data?.data?.items || []).filter(i => String(i.booking?._id || i.booking) === String(id)));
+  }), [id]);
   useEffect(() => {
-    api.get('/invoices').then(r=>setInvoices((r.data.data.items||[]).filter(i=>String(i.booking)===String(id)))).catch(()=>{});
-    api.get(`/pre-advice/${id}`).then((response) => setBooking(response.data.data.item)).catch((error) => toast(error.response?.data?.message || "Unable to load booking", "error")).finally(() => setLoading(false));
+    let active = true;
+    Promise.allSettled([api.get(`/pre-advice/${id}`), api.get('/invoices')]).then(([bookingResult, invoiceResult]) => {
+      if (!active) return;
+      if (bookingResult.status === 'fulfilled') setBooking(bookingResult.value.data.data.item);
+      else toast(bookingResult.reason?.response?.data?.message || 'Unable to load booking', 'error');
+      if (invoiceResult.status === 'fulfilled') setInvoices((invoiceResult.value.data?.data?.items || []).filter(i => String(i.booking?._id || i.booking) === String(id)));
+    }).finally(() => {if (active) setLoading(false)});
+    return () => {active = false};
   }, [id, toast]);
 
   useEffect(() => {
-    const update = (item) => { if (item?._id === id) setBooking((current) => ({ ...current, ...item })); };
-    const status = (payload) => { if (payload.id === id) setBooking((current) => current ? { ...current, status: payload.status, updatedAt: payload.updatedAt, workflowStage: payload.workflowStage || current.workflowStage, workflowHistory: payload.workflowHistory || current.workflowHistory } : current); };
-    const workflow = (payload) => { if (payload.id === id) setBooking((current) => current ? { ...current, ...payload } : current); };
-    socket.on("pre-advice:updated", update); socket.on("pre-advice:status-updated", status); socket.on("pre-advice:workflow-updated", workflow);
-    return () => { socket.off("pre-advice:updated", update); socket.off("pre-advice:status-updated", status); socket.off("pre-advice:workflow-updated", workflow); };
-  }, [socket, id]);
+    // Invoice updates and workflow events can arrive independently. Always reload the
+    // authoritative booking/invoice pair; a partial socket payload is not a full record.
+    const relevant = payload => !payload ||
+      [payload.id, payload.bookingId, payload.booking?._id, payload.booking].some(candidate => String(candidate || '') === String(id));
+    const handleUpdate = payload => { if (relevant(payload)) refresh().catch(() => {}); };
+    const handleConnect = () => refresh().catch(() => {});
+    const events = ["pre-advice:updated", "pre-advice:status-updated", "pre-advice:workflow-updated", "invoice:updated"];
+    events.forEach(event => socket.on(event, handleUpdate));
+    socket.on('connect', handleConnect);
+    return () => { events.forEach(event => socket.off(event, handleUpdate)); socket.off('connect', handleConnect); };
+  }, [socket, id, refresh]);
+
+  const onGateInPayment = async () => {
+    if (!gateInInvoice && booking?.workflowStage === 'READY_FOR_GATE_IN') {
+      try {
+        // Existing idempotent endpoint: recover an approved booking whose invoice
+        // was not created or loaded, without altering booking or API contracts.
+        await api.post(`/invoices/booking/${id}`, { type: 'GATE_IN' });
+        await refresh();
+      } catch (error) {
+        toast(error.response?.data?.message || 'Unable to load Gate-in invoice.', 'error');
+        return;
+      }
+    }
+    setPaymentModal('GATE_IN');
+  };
+  const onGateOutPayment = () => {
+    if (isGateOutEligible(booking)) setGateOutOpen(true);
+    else if (invoices.some(invoice => invoice.type === 'GATE_OUT')) setPaymentModal('GATE_OUT');
+  };
+  const gateInInvoice = invoices.find(invoice => invoice.type === 'GATE_IN');
+  const canAccessGateInPayment = Boolean(gateInInvoice || booking?.workflowStage === 'READY_FOR_GATE_IN');
+  const gateOutInvoice = invoices.find(invoice => invoice.type === 'GATE_OUT');
 
   if (loading) return <TableSkeleton rows={6} columns={3} />;
   if (!booking) return <div className="card p-6">Booking not found.</div>;
@@ -77,12 +118,12 @@ export default function PreAdviceDetail() {
       </header>
 
       <div className="space-y-5 p-4 sm:p-6">
-        <BookingProgressTimeline booking={booking} invoices={invoices} />
-        {['READY_FOR_GATE_IN','GATE_IN_PAYMENT_SUBMITTED'].includes(booking.workflowStage)&&!booking.gateIn?.actualGateInAt&&<div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900"><strong>Advance Gate-in payment is available now.</strong><p className="mt-1">You do not need to wait for your scheduled Gate-in date to pay. The container will only be physically gated in after admin payment verification and inspection.</p>{booking.gateIn?.payment?.status==='REJECTED'&&<p className="mt-2 font-semibold text-red-700">Payment rejected: submit a corrected reference or payment proof from your invoice.</p>}</div>}<div className="flex gap-3"><Link to="/portal/invoices" className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white">View Gate-in Invoice & Pay Now</Link></div>
-        {booking.preAdviceReview?.reason&&<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><strong>Pre-advice rejected:</strong> {booking.preAdviceReview.reason}</div>}
-        {booking.gateOut?.payment?.status==='REJECTED'&&<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><strong>Gate-out rejected:</strong> {booking.gateOut.remarks}</div>}
-        {!!booking.gateIn?.actualGateInAt&&<div className="rounded-xl border bg-muted p-4 text-sm"><strong>Time in terminal:</strong> {Math.max(1,Math.ceil((new Date(booking.gateOut?.releasedAt||Date.now()).getTime()-new Date(booking.gateIn.actualGateInAt).getTime())/86400000))} day(s) {booking.gateOut?.releasedAt?'(final)':'(current)'}</div>}
-        {invoices.length>0&&<section className="rounded-2xl border p-5"><h2 className="font-extrabold">Linked invoices & receipts</h2><div className="mt-3 space-y-3">{invoices.map(i=><div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3 text-sm" key={i._id}><span><strong>{i.number}</strong> · {i.type.replace('_','-')} · {i.status.replaceAll('_',' ')}</span><div className="flex gap-2"><button type="button" className="font-bold text-brand-700" onClick={()=>downloadClientFile(`/invoices/${i._id}/pdf`)}>Invoice PDF</button>{i.status==='PAID'&&<button type="button" className="font-bold text-brand-700" onClick={()=>downloadClientFile(`/invoices/${i._id}/receipt`)}>Receipt PDF</button>}</div></div>)}</div></section>}
+        <BookingProgressTimeline
+          booking={booking}
+          invoices={invoices}
+          onGateInPayment={canAccessGateInPayment ? onGateInPayment : undefined}
+          onGateOutPayment={isGateOutEligible(booking) || gateOutInvoice ? onGateOutPayment : undefined}
+        />
 
         <div className="grid gap-5 xl:grid-cols-2">
           <DetailPanel title="Container Details" Icon={Package} keys={["containerNumber", "containerSize", "containerType", "loadStatus", "transactionClassification"]} booking={booking} />
@@ -96,6 +137,14 @@ export default function PreAdviceDetail() {
           <section className="rounded-2xl border border-border p-5"><h2 className="font-extrabold">Status History</h2>{booking.statusHistory?.length ? <div className="mt-4 space-y-3">{[...booking.statusHistory].reverse().slice(0,8).map((entry,index)=><div key={`${entry.status}-${index}`} className="flex items-start justify-between gap-4 border-b border-border pb-3 text-sm last:border-0"><span className="font-bold">{pretty(entry.status)}</span><time className="text-xs text-muted-foreground">{entry.changedAt ? new Date(entry.changedAt).toLocaleString("en-PH") : "—"}</time></div>)}</div> : <p className="mt-4 text-sm text-muted-foreground">No history available.</p>}</section>
         </div>
       </div>
+      {gateOutOpen && <GateOutRequest booking={booking} onClose={() => setGateOutOpen(false)} onUpdated={refresh} />}
+      {paymentModal && <BookingPaymentModal
+        booking={booking}
+        type={paymentModal}
+        invoice={paymentModal === 'GATE_IN' ? gateInInvoice : gateOutInvoice}
+        onClose={() => setPaymentModal(null)}
+        onSubmitted={refresh}
+      />}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { ArrowRight, ChevronRight, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
+import { bookingNextAction } from "../../lib/bookingJourney";
 
 const dateLabel = (value) => {
   if (!value) return "—";
@@ -16,7 +17,7 @@ export default function RecentActivity({ bookings = [] }) {
         {bookings.length ? bookings.slice(0, 5).map((item) => (
           <Link key={item._id} to={`/portal/pre-advice/${item._id}`} className="flex min-h-[72px] items-center gap-3 border-b border-border px-3 py-3 last:border-b-0 hover:bg-muted/60">
             <span className="grid size-10 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700"><FileText className="size-5" /></span>
-            <span className="min-w-0 flex-1"><strong className="block truncate text-sm text-foreground">{item.status?.replaceAll("_", " ") || "Booking updated"}</strong><small className="mt-1 block truncate text-xs text-muted-foreground">{item.bookingReference} · {item.containerNumber}</small></span>
+            <span className="min-w-0 flex-1"><strong className="block truncate text-sm text-foreground">{bookingNextAction(item).title}</strong><small className="mt-1 block truncate text-xs text-muted-foreground">{item.bookingReference} · {item.containerNumber}</small></span>
             <span className="hidden text-xs text-muted-foreground sm:block">{dateLabel(item.updatedAt || item.createdAt)}</span>
             <ChevronRight className="size-4 text-muted-foreground" />
           </Link>

@@ -1,14 +1,14 @@
 import { ArrowRight, Boxes, ChevronRight, Clock3, Container } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export default function OverviewMetrics({ bookings = [] }) {
+export default function OverviewMetrics({ bookings = [], summary = null }) {
   const active = bookings.filter((item) => !["COMPLETED", "CANCELLED"].includes(item.status)).length;
   const yard = bookings.filter((item) => ["GATED_IN", "INVENTORY", "STORED"].includes(item.status) || ["GATE_IN", "INVENTORY", "STORAGE"].includes(item.workflowStage)).length;
   const pending = bookings.filter((item) => ["DRAFT", "SUBMITTED"].includes(item.status)).length;
   const stats = [
-    { label: "Active Bookings", value: active, Icon: Container, cls: "border-brand-100 bg-gradient-to-br from-brand-50 to-white text-brand-700" },
-    { label: "Containers In Yard", value: yard, Icon: Boxes, cls: "border-sky-100 bg-gradient-to-br from-sky-50 to-white text-sky-700" },
-    { label: "Pending Approvals", value: pending, Icon: Clock3, cls: "border-amber-100 bg-gradient-to-br from-amber-50 to-white text-amber-700" },
+    { label: "All Bookings", value: summary?.all ?? bookings.length, Icon: Container, cls: "border-brand-100 bg-gradient-to-br from-brand-50 to-white text-brand-700" },
+    { label: "Containers In Yard", value: summary?.yard ?? yard, Icon: Boxes, cls: "border-sky-100 bg-gradient-to-br from-sky-50 to-white text-sky-700" },
+    { label: "Pending Approvals", value: summary?.pending ?? pending, Icon: Clock3, cls: "border-amber-100 bg-gradient-to-br from-amber-50 to-white text-amber-700" },
   ];
   return (
     <section>
