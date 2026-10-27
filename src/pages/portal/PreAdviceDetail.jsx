@@ -9,6 +9,7 @@ import TableSkeleton from "../../components/ui/TableSkeleton";
 import GateOutRequest from "../../components/booking/GateOutRequest";
 import BookingPaymentModal from "../../components/payment/BookingPaymentModal";
 import { isGateOutEligible } from "../../lib/bookingJourney";
+import { canOpenGateInPayment } from "../../lib/gateInPaymentAccess";
 
 const labels = {
   containerNumber: "Container Number", containerSize: "Container Size", containerType: "Container Type", loadStatus: "Load Status",
@@ -34,6 +35,8 @@ export default function PreAdviceDetail() {
   const [booking, setBooking] = useState(null);
   const [gateOutOpen, setGateOutOpen] = useState(false);
   const [paymentModal, setPaymentModal] = useState(null);
+  const [recoveredGateInInvoice, setRecoveredGateInInvoice] = useState(null);
+  const [openingGateInPayment, setOpeningGateInPayment] = useState(false);
   const [invoices,setInvoices]=useState([]);
   const [loading, setLoading] = useState(true);
   const { socket } = useSocket();
@@ -67,27 +70,35 @@ export default function PreAdviceDetail() {
     return () => { events.forEach(event => socket.off(event, handleUpdate)); socket.off('connect', handleConnect); };
   }, [socket, id, refresh]);
 
+  const gateInInvoice = invoices.find(invoice => invoice.type === 'GATE_IN') || recoveredGateInInvoice;
+  const gateOutInvoice = invoices.find(invoice => invoice.type === 'GATE_OUT');
+  const canAccessGateInPayment = canOpenGateInPayment(booking, gateInInvoice);
+
   const onGateInPayment = async () => {
-    if (!gateInInvoice && booking?.workflowStage === 'READY_FOR_GATE_IN') {
-      try {
-        // Existing idempotent endpoint: recover an approved booking whose invoice
-        // was not created or loaded, without altering booking or API contracts.
-        await api.post(`/invoices/booking/${id}`, { type: 'GATE_IN' });
-        await refresh();
-      } catch (error) {
-        toast(error.response?.data?.message || 'Unable to load Gate-in invoice.', 'error');
-        return;
+    if (openingGateInPayment) return;
+    setOpeningGateInPayment(true);
+    try {
+      // If the invoice list hasn't returned an existing Gate-in invoice, the
+      // backend's idempotent endpoint retrieves/generates it after approval.
+      // The action must remain visible for approved bookings while it loads.
+      if (!gateInInvoice) {
+        const response = await api.post(`/invoices/booking/${id}`, { type: 'GATE_IN' });
+        const invoice = response.data?.data?.invoice;
+        if (!invoice?._id) throw new Error('The terminal has not issued a Gate-in invoice yet.');
+        setRecoveredGateInInvoice(invoice);
+        refresh().catch(() => {});
       }
+      setPaymentModal('GATE_IN');
+    } catch (error) {
+      toast(error.response?.data?.message || error.message || 'Unable to load Gate-in invoice.', 'error');
+    } finally {
+      setOpeningGateInPayment(false);
     }
-    setPaymentModal('GATE_IN');
   };
   const onGateOutPayment = () => {
     if (isGateOutEligible(booking)) setGateOutOpen(true);
-    else if (invoices.some(invoice => invoice.type === 'GATE_OUT')) setPaymentModal('GATE_OUT');
+    else if (gateOutInvoice) setPaymentModal('GATE_OUT');
   };
-  const gateInInvoice = invoices.find(invoice => invoice.type === 'GATE_IN');
-  const canAccessGateInPayment = Boolean(gateInInvoice || booking?.workflowStage === 'READY_FOR_GATE_IN');
-  const gateOutInvoice = invoices.find(invoice => invoice.type === 'GATE_OUT');
 
   if (loading) return <TableSkeleton rows={6} columns={3} />;
   if (!booking) return <div className="card p-6">Booking not found.</div>;
@@ -120,8 +131,9 @@ export default function PreAdviceDetail() {
       <div className="space-y-5 p-4 sm:p-6">
         <BookingProgressTimeline
           booking={booking}
-          invoices={invoices}
+          invoices={gateInInvoice && !invoices.some(invoice => invoice.type === 'GATE_IN') ? [gateInInvoice, ...invoices] : invoices}
           onGateInPayment={canAccessGateInPayment ? onGateInPayment : undefined}
+          gateInPaymentLoading={openingGateInPayment}
           onGateOutPayment={isGateOutEligible(booking) || gateOutInvoice ? onGateOutPayment : undefined}
         />
 

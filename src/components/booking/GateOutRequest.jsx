@@ -3,6 +3,7 @@ import { AlertCircle, CalendarClock, CreditCard, Loader2, X } from 'lucide-react
 import { api } from '../../lib/api';
 import OnlinePaymentMethod from '../payment/OnlinePaymentMethod';
 import PaymentProofUpload, { validateProofFile } from '../payment/PaymentProofUpload';
+import { calendarStorageDays } from '../../lib/storageDays';
 
 const manilaToday = () => {
   const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map((item) => [item.type,item.value]));
@@ -50,7 +51,7 @@ export default function GateOutRequest({booking,onClose,onUpdated}) {
 
   const validSlot = slots.some((slot) => slot.hour === time && slot.remaining > 0);
   const canSubmit = Boolean(!busy && !loadingQuote && quote && method && (reference.trim() || proof) && validSlot && !validateProofFile(proof));
-  const days = booking.gateIn?.actualGateInAt ? Math.max(1,Math.ceil((Date.now()-new Date(booking.gateIn.actualGateInAt).getTime())/86400000)) : 0;
+  const days = calendarStorageDays(booking.gateIn?.actualGateInAt);
   const bookingDetails = [
     ['Booking reference',booking.bookingReference],
     ['Container',booking.containerNumber],
@@ -103,9 +104,10 @@ export default function GateOutRequest({booking,onClose,onUpdated}) {
           <p className="text-xs text-muted-foreground">Terminal operating schedule: 24 hours daily when enabled in Admin Settings. Only future available hourly slots can be selected. Asia/Manila time.</p>
         </section>
         <section className="space-y-3">
-          <h3 className="font-extrabold">Server-calculated Billing</h3><p className="text-xs text-muted-foreground">Fixed storage, handling and other applicable fees are automatic. Overtime applies from 6:00 PM to 7:59 AM. Optional fees are added only if selected.</p>
+          <h3 className="font-extrabold">Server-calculated Billing</h3><p className="text-xs text-muted-foreground">Storage is charged per Asia/Manila calendar date, including the entry and scheduled Gate-out dates. A stay crossing midnight counts as two days.</p><p className="text-xs text-muted-foreground">Fixed storage, handling and other applicable fees are automatic. Overtime applies from 6:00 PM to 7:59 AM. Optional fees are added only if selected.</p>
           {!!optionalCharges.length && <div className="rounded-xl border border-slate-200 p-4"><h4 className="mb-2 text-sm font-bold">Optional services (add only when required)</h4><p className="mb-3 text-xs text-muted-foreground">Additional services are priced from Rate Setup. Selecting one recalculates the official Gate-out quote and VAT.</p><div className="space-y-2">{optionalCharges.map(rate=><label key={rate.id} className="flex cursor-pointer items-start justify-between gap-3 rounded-lg border bg-surface p-3 text-sm"><span className="flex items-start gap-2"><input type="checkbox" className="mt-1" checked={selectedOptional.includes(rate.id)} disabled={busy} onChange={event=>setSelectedOptional(current=>event.target.checked?[...current,rate.id]:current.filter(id=>id!==rate.id))}/><span><strong>{rate.name}</strong>{rate.description&&<span className="block text-xs text-muted-foreground">{rate.description}</span>}</span></span><strong>{peso(rate.amount)}</strong></label>)}</div></div>}
           {loadingQuote ? <div className="animate-pulse space-y-3 rounded-xl border p-4"><div className="h-4 rounded bg-muted"/><div className="h-4 w-3/4 rounded bg-muted"/></div> : quote ? <div className="rounded-xl border p-4 text-sm">
+            {quote.lines?.find(line=>line.description==='Storage') && <p className="mb-2 text-sm font-semibold text-brand-700">Estimated storage charge: {quote.lines.find(line=>line.description==='Storage').quantity} calendar day(s) through your scheduled Gate-out date.</p>}
             {quote.lines?.map((line,index)=><div key={index} className="flex justify-between gap-3 py-1"><span>{line.description} × {line.quantity}</span><span>{peso(line.amount)}</span></div>)}
             <div className="mt-2 flex justify-between border-t pt-3"><span>Subtotal</span><strong>{peso(quote.subtotal)}</strong></div>
             <div className="flex justify-between"><span>VAT ({quote.vatRate}%)</span><strong>{peso(quote.vat)}</strong></div>

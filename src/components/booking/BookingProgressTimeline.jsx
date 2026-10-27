@@ -1,4 +1,5 @@
 import { BadgeCheck, Check, CreditCard, DoorOpen, Truck, Warehouse } from "lucide-react";
+import { gateInPaymentPresentation } from "../../lib/gateInPaymentAccess";
 
 const DETAILED_ORDER = [
   "BOOKING_SUBMITTED",
@@ -62,14 +63,13 @@ function entriesFor(group, history) {
     .sort((a, b) => DETAILED_ORDER.indexOf(a.stage) - DETAILED_ORDER.indexOf(b.stage));
 }
 
-export default function BookingProgressTimeline({ booking, invoices = [], onGateInPayment, onGateOutPayment }) {
+export default function BookingProgressTimeline({ booking, invoices = [], onGateInPayment, onGateOutPayment, gateInPaymentLoading = false }) {
   const gateInInvoice = invoices.find((item) => item.type === "GATE_IN");
   const gateOutInvoice = invoices.find((item) => item.type === "GATE_OUT");
   const gateInPaymentStatus = booking?.gateIn?.payment?.status;
+  const { state: gateInStatusLabel, action: gateInLabel, invoiceStatus: gateInInvoiceStatus } =
+    gateInPaymentPresentation(gateInInvoice, gateInPaymentStatus);
   const gateOutPaymentStatus = booking?.gateOut?.payment?.status;
-  const gateInLabel = gateInInvoice?.status === "PAID" ? "View Gate-in receipt" :
-    gateInInvoice?.status === "PAYMENT_SUBMITTED" || gateInPaymentStatus === "PENDING_VERIFICATION" ? "View Gate-in payment" :
-    gateInPaymentStatus === "REJECTED" ? "Resubmit Gate-in payment" : "Pay Gate-in charges";
   const gateOutLabel = gateOutInvoice?.status === "PAID" ? "View Gate-out receipt" :
     gateOutInvoice?.status === "PAYMENT_SUBMITTED" || gateOutPaymentStatus === "PENDING_VERIFICATION" ? "View Gate-out payment" :
     gateOutPaymentStatus === "REJECTED" ? "Resubmit Gate-out payment" : "Request Gate-out & payment";
@@ -133,10 +133,23 @@ export default function BookingProgressTimeline({ booking, invoices = [], onGate
                     })}
                   </div>
 
-                  {group.key === "GATE_IN" && onGateInPayment && (
-                    <div className="mt-3">
-                      <button type="button" className={paymentLinkClass} onClick={onGateInPayment}>{gateInLabel}</button>
-                      {gateInInvoice && <p className="mt-1 text-xs text-muted-foreground">{gateInInvoice.number} · {String(gateInInvoice.status || "UNPAID").replaceAll("_", " ")}</p>}
+                  {group.key === "GATE_IN" && (onGateInPayment || gateInInvoice || booking?.gateIn?.payment?.submittedAt) && (
+                    <div className="mt-3 rounded-xl border border-border bg-muted/40 px-3 py-3 text-xs" aria-label="Gate-in payment status">
+                      <p className="font-semibold text-foreground">Gate-in payment: <span className="font-normal">{gateInStatusLabel}</span></p>
+                      <p className="mt-1 text-muted-foreground">
+                        {gateInInvoice ? <>Invoice {gateInInvoice.number} · <strong>{gateInInvoiceStatus.replaceAll('_', ' ')}</strong></> : 'Open payment to load your Gate-in invoice'}
+                      </p>
+                      {onGateInPayment && (
+                        <button
+                          type="button"
+                          className={`${paymentLinkClass} mt-2 disabled:cursor-wait disabled:opacity-60`}
+                          onClick={onGateInPayment}
+                          disabled={gateInPaymentLoading}
+                          aria-label={gateInLabel}
+                        >
+                          {gateInPaymentLoading ? 'Opening Gate-in payment…' : gateInLabel}
+                        </button>
+                      )}
                     </div>
                   )}
                   {group.key === "GATE_OUT" && onGateOutPayment && (
