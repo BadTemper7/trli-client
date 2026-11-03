@@ -12,6 +12,7 @@ const socketUrl = import.meta.env.DEV ? undefined : (
 
 export const socket = io(socketUrl, {
   autoConnect: false,
+  auth: { audience: 'CLIENT' },
   withCredentials: true,
   transports: ['websocket', 'polling'],
   tryAllTransports: true,

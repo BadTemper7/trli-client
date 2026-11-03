@@ -54,10 +54,12 @@ export default function HourlySchedulePicker({
   const [availability, setAvailability] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mobileOpen,setMobileOpen]=useState(false);
 
   useEffect(() => {
     let active = true;
     setAvailability(null);
+    setMobileOpen(false);
     setError("");
     if (!date || state.isPast) { setLoading(false); return () => { active = false; }; }
     setLoading(true);
@@ -96,7 +98,7 @@ export default function HourlySchedulePicker({
       </div>
       <div>
         <label className="mb-1.5 block text-sm font-semibold text-slate-800">{timeLabel}{required ? " *" : ""}</label>
-        <div className="relative">
+        <div className="relative hidden md:block">
           <select className="input appearance-none pr-11" value={time || ""}
             onChange={(event) => onTimeChange(event.target.value)}
             disabled={disabled || !date || loading || Boolean(error) || !availability || availableSlots.length === 0}>
@@ -106,6 +108,14 @@ export default function HourlySchedulePicker({
             ))}
           </select>
           <Clock3 size={18} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        </div>
+        <div className="relative md:hidden">
+          <button className="input flex min-h-12 w-full items-center justify-between text-left" aria-haspopup="listbox" aria-expanded={mobileOpen} type="button" disabled={disabled||!date||loading||Boolean(error)||availableSlots.length===0} onClick={()=>setMobileOpen(x=>!x)}>
+            <span>{slots.find(slot=>slot.value===time)?.label|| (loading?'Loading available hours…':availableSlots.length?'Tap to select an available time':'No available times')}</span><Clock3 size={18}/>
+          </button>
+          {mobileOpen&&<div role="listbox" aria-label="Available booking hours" className="relative z-[80] mt-2 max-h-64 space-y-1 overflow-y-auto overscroll-contain rounded-xl border bg-white p-2 shadow-lg" style={{WebkitOverflowScrolling:'touch'}}>
+            {availableSlots.map(slot=><button role="option" aria-selected={time===slot.value} type="button" key={slot.value} className={`block min-h-11 w-full rounded-lg px-3 py-2 text-left text-sm font-semibold ${time===slot.value?'bg-blue-100 text-blue-800':'hover:bg-slate-100'}`} onClick={()=>{onTimeChange(slot.value);setMobileOpen(false)}}>{slot.label} · {slot.remaining} remaining</button>)}
+          </div>}
         </div>
         <p className={`mt-1.5 text-xs ${state.isPast || error || (availability && !availableSlots.length) ? "text-red-600" : "text-slate-500"}`}>{helper}</p>
       </div>

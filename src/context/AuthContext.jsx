@@ -9,13 +9,16 @@ const SESSION_HINT_KEY = "trl-client-session";
 export function AuthProvider({ children }) {
   const location = useLocation();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [authError,setAuthError]=useState('');
+  const [loading, setLoading] = useState(true);
   const inFlight = useRef(null);
   const checkedSession = useRef(false);
 
   const refresh = useCallback(async ({ force = false } = {}) => {
     if (inFlight.current && !force) return inFlight.current;
 
+    setAuthError('');
+    setLoading(true);
     inFlight.current = api
       .get("/auth/me")
       .then((response) => {
@@ -30,10 +33,12 @@ export function AuthProvider({ children }) {
           localStorage.removeItem(SESSION_HINT_KEY);
           return null;
         }
-        throw error;
+        setAuthError('Cannot confirm your session. Check your network and try again.');
+        return null;
       })
       .finally(() => {
         inFlight.current = null;
+        setLoading(false);
       });
 
     return inFlight.current;
@@ -86,7 +91,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, refresh, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loading, authError, refresh, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

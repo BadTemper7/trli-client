@@ -63,7 +63,7 @@ function entriesFor(group, history) {
     .sort((a, b) => DETAILED_ORDER.indexOf(a.stage) - DETAILED_ORDER.indexOf(b.stage));
 }
 
-export default function BookingProgressTimeline({ booking, invoices = [], onGateInPayment, onGateOutPayment, gateInPaymentLoading = false }) {
+export default function BookingProgressTimeline({ booking, invoices = [], onGateInPayment, onGateOutPayment, onPassPreview, gateInPaymentLoading = false }) {
   const gateInInvoice = invoices.find((item) => item.type === "GATE_IN");
   const gateOutInvoice = invoices.find((item) => item.type === "GATE_OUT");
   const gateInPaymentStatus = booking?.gateIn?.payment?.status;
@@ -159,6 +159,15 @@ export default function BookingProgressTimeline({ booking, invoices = [], onGate
                     </div>
                   )}
 
+                  {(group.key==='GATE_IN'||group.key==='GATE_OUT') && onPassPreview && (
+                    <div className="mt-3">
+                      {(() => {const inPass=group.key==='GATE_IN';const authorized=inPass
+                        ? Boolean(booking?.gateIn?.actualGateInAt&&booking?.gateIn?.inspection?.status==='ACCEPTED')
+                        : Boolean(booking?.gateOut?.approvedAt&&['APPROVED','RELEASED'].includes(booking?.gateOut?.approvalStatus));
+                        return <button type="button" disabled={!authorized} className={`${paymentLinkClass} disabled:cursor-not-allowed disabled:text-slate-400 disabled:no-underline`} onClick={()=>onPassPreview(inPass?'GATE_IN':'GATE_OUT')}>{authorized?`View approved ${inPass?'Gate-in':'Gate-out'} Pass`:`${inPass?'Gate-in':'Gate-out'} Pass awaiting approval`}</button>;
+                      })()}
+                    </div>
+                  )}
                   {group.key === "YARD" && booking?.storage?.status === "STORED" && (
                     <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50/60 px-3 py-2 text-xs">
                       <span className="font-bold text-brand-700">Storage location:</span>{" "}

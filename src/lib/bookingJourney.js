@@ -8,7 +8,7 @@ export function isGateOutEligible(booking) {
   return Boolean(booking && booking.workflowStage === 'STORAGE' &&
     booking.storage?.status === 'STORED' &&
     !booking.gateOut?.approvedAt && !booking.gateOut?.releasedAt &&
-    booking.gateOut?.payment?.status !== 'SUBMITTED');
+    !['SUBMITTED','VERIFIED'].includes(booking.gateOut?.payment?.status));
 }
 
 export function isGateOutRelated(booking) {

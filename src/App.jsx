@@ -1,3 +1,4 @@
+import ClientContainerDetails from './pages/portal/ClientContainerDetails';
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import PublicLayout from "./components/layout/PublicLayout";
 import PortalLayout from "./components/layout/PortalLayout";
@@ -33,8 +34,9 @@ function RouteLoading() {
 }
 
 function PortalGuard() {
-  const { user, loading } = useAuth();
+  const { user, loading, authError, refresh } = useAuth();
   if (loading) return <RouteLoading />;
+  if(authError)return <div role="alert" className="mx-auto max-w-xl p-6"><p>{authError}</p><button className="btn btn-primary mt-3" onClick={()=>refresh({force:true})}>Retry session verification</button></div>;
   return user ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
@@ -90,6 +92,7 @@ export default function App() {
             <Route path="pre-advice/:id/edit" element={<PreAdviceForm />} />
             <Route path="company" element={<Company />} />
             <Route path="invoices" element={<Invoices />} />
+            <Route path="containers/:source/:id" element={<ClientContainerDetails />} />
             <Route path="gate-out-requests" element={<GateOutRequests />} />
             <Route path="notifications" element={<Notifications />} />
             <Route path="documents" element={<Documents />} />

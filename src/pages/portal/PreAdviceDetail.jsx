@@ -1,3 +1,4 @@
+import PassPreview from '../../components/booking/PassPreview';
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, CalendarClock, FileText, Package, Truck } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
@@ -34,6 +35,7 @@ export default function PreAdviceDetail() {
   const { id } = useParams();
   const [booking, setBooking] = useState(null);
   const [gateOutOpen, setGateOutOpen] = useState(false);
+  const [previewPass,setPreviewPass]=useState(null);
   const [paymentModal, setPaymentModal] = useState(null);
   const [recoveredGateInInvoice, setRecoveredGateInInvoice] = useState(null);
   const [openingGateInPayment, setOpeningGateInPayment] = useState(false);
@@ -134,6 +136,7 @@ export default function PreAdviceDetail() {
           invoices={gateInInvoice && !invoices.some(invoice => invoice.type === 'GATE_IN') ? [gateInInvoice, ...invoices] : invoices}
           onGateInPayment={canAccessGateInPayment ? onGateInPayment : undefined}
           gateInPaymentLoading={openingGateInPayment}
+          onPassPreview={setPreviewPass}
           onGateOutPayment={isGateOutEligible(booking) || gateOutInvoice ? onGateOutPayment : undefined}
         />
 
@@ -149,6 +152,7 @@ export default function PreAdviceDetail() {
           <section className="rounded-2xl border border-border p-5"><h2 className="font-extrabold">Status History</h2>{booking.statusHistory?.length ? <div className="mt-4 space-y-3">{[...booking.statusHistory].reverse().slice(0,8).map((entry,index)=><div key={`${entry.status}-${index}`} className="flex items-start justify-between gap-4 border-b border-border pb-3 text-sm last:border-0"><span className="font-bold">{pretty(entry.status)}</span><time className="text-xs text-muted-foreground">{entry.changedAt ? new Date(entry.changedAt).toLocaleString("en-PH") : "—"}</time></div>)}</div> : <p className="mt-4 text-sm text-muted-foreground">No history available.</p>}</section>
         </div>
       </div>
+      {previewPass&&<PassPreview source="live" id={id} type={previewPass} onClose={()=>setPreviewPass(null)}/>}
       {gateOutOpen && <GateOutRequest booking={booking} onClose={() => setGateOutOpen(false)} onUpdated={refresh} />}
       {paymentModal && <BookingPaymentModal
         booking={booking}
