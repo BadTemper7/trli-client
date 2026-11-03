@@ -58,7 +58,7 @@ export default function PreAdviceList() {
       const data = response.data?.data || {};
       setRows(data.items || []);
       setPagination(data.pagination || { page, limit: 10, total: 0, totalPages: 1 });
-      setSummary(data.summary || { all: 0, pending: 0, yard: 0, complete: 0 });
+      // Summary is loaded separately, never calculated from this page's rows.
     } catch (error) {
       if (currentRequest === requestId.current) toast(error.response?.data?.message || "Unable to load bookings", "error");
     } finally {
@@ -66,10 +66,19 @@ export default function PreAdviceList() {
     }
   }, [page, debouncedQ, status, category, toast]);
 
+  const loadSummary = useCallback(async () => {
+    try {
+      const result = await api.get('/pre-advice/summary', {
+        params: { scope: 'filtered', search: debouncedQ || undefined, category },
+      });
+      setSummary(result.data?.data?.summary || {all:0,pending:0,yard:0,complete:0});
+    } catch { /* A temporary summary failure must not block the bookings table. */ }
+  }, [debouncedQ, category]);
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { loadSummary(); }, [loadSummary]);
   useEffect(()=>{let alive=true;api.get('/client/container-tracking',{params:{limit:100}}).then(r=>{if(alive)setHistoricalRows((r.data?.data?.items||[]).filter(x=>x.source==='HISTORICAL'))}).catch(()=>{});return()=>{alive=false}},[]);
   useEffect(() => {
-    const refresh = () => load();
+    const refresh = () => { load(); loadSummary(); };
     socket.on("pre-advice:created", refresh);
     socket.on("pre-advice:updated", refresh);
     socket.on("pre-advice:status-updated", refresh);
@@ -84,7 +93,7 @@ export default function PreAdviceList() {
       socket.off("connect", refresh);
       socket.off("invoice:updated",refresh);
     };
-  }, [socket, load]);
+  }, [socket, load, loadSummary]);
 
   const changeStatus = (next) => { setStatus(next); setPage(1); };
   const changeCategory=(next)=>{setCategory(next);setStatus('');setPage(1)};
@@ -95,7 +104,7 @@ export default function PreAdviceList() {
     try {
       await api.post(`/pre-advice/${item._id}/cancel`, { reason });
       toast("Booking cancelled");
-      load();
+      load(); loadSummary();
     } catch (error) {
       toast(error.response?.data?.message || "Unable to cancel booking", "error");
     }
@@ -115,12 +124,13 @@ export default function PreAdviceList() {
 
       {!verified && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">New bookings require VERIFIED company status. Existing records remain visible.</div>}
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Filtered full-dataset booking counts">
         <SummaryTile title="All Bookings" value={summary.all} Icon={Container} tone="border-brand-100 bg-brand-50 text-brand-700" active={status === ""} onClick={() => changeStatus("")} />
         <SummaryTile title="Pending Approval" value={summary.pending} Icon={Clock3} tone="border-amber-100 bg-amber-50 text-amber-700" active={status === "SUBMITTED"} onClick={() => changeStatus("SUBMITTED")} />
         <SummaryTile title="Gate / Yard" value={summary.yard} Icon={CalendarDays} tone="border-sky-100 bg-sky-50 text-sky-700" active={status === "READY_FOR_GATE_IN"} onClick={() => changeStatus("READY_FOR_GATE_IN")} />
         <SummaryTile title="Completed" value={summary.complete} Icon={CheckCircle2} tone="border-emerald-100 bg-emerald-50 text-emerald-700" active={status === "COMPLETED"} onClick={() => changeStatus("COMPLETED")} />
       </div>
+      <p className="text-xs text-muted-foreground">Cards count all matching bookings across every page. Status tiles are independent of the selected status.</p>
 
       {historicalRows.length>0&&<section className="rounded-2xl border border-border bg-surface p-5 shadow-sm"><h2 className="text-lg font-extrabold">Existing / Historical Containers</h2><p className="mt-1 text-sm text-muted-foreground">Older containers assigned to your company, recorded by the terminal. These do not represent newly submitted bookings.</p><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[480px] text-sm"><thead className="bg-muted/60 text-left"><tr><th className="p-3">Container</th><th className="p-3">Status</th><th className="p-3">Gate-in</th><th className="p-3">Details / Passes</th></tr></thead><tbody>{historicalRows.map(h=><tr className="border-t" key={h.id}><td className="p-3 font-bold">{h.containerNumber}</td><td className="p-3">{h.status}</td><td className="p-3">{h.gateInAt?new Date(h.gateInAt).toLocaleDateString('en-PH',{timeZone:'Asia/Manila'}):'—'}</td><td className="p-3"><Link className="font-semibold text-brand-700 underline" to={`/portal/containers/historical/${h.id}`}>View Container</Link></td></tr>)}</tbody></table></div></section>}
       {passPreview&&<PassPreview source="live" id={passPreview.id} type={passPreview.type} onClose={()=>setPassPreview(null)}/>}

@@ -20,9 +20,14 @@ export default function Dashboard() {
     let active = true;
     if (status !== "VERIFIED") return undefined;
     setLoading(true);
-    api.get("/pre-advice", { params: { limit: 50 } })
-      .then((response) => { if (active) { setBookings(response.data?.data?.items || []); setSummary(response.data?.data?.summary || null); } })
-      .catch(() => { if (active) setBookings([]); })
+    Promise.all([
+      api.get('/pre-advice', { params: { limit: 5 } }),
+      api.get('/pre-advice/summary', { params: { scope: 'global' } }),
+    ]).then(([list, totals]) => {
+      if (!active) return;
+      setBookings(list.data?.data?.items || []);
+      setSummary(totals.data?.data?.summary || null);
+    }).catch(() => { if (active) { setBookings([]); setSummary(null); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [status]);
