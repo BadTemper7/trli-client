@@ -169,7 +169,7 @@ export default function GateOutRequest({booking,onClose,onUpdated}) {
             {quote.lines?.find(line=>line.description==='Storage') && <p className="mb-2 text-sm font-semibold text-brand-700">Estimated storage charge: {quote.lines.find(line=>line.description==='Storage').quantity} calendar day(s) through your scheduled Gate-out date.</p>}
             <h4 className="mb-2 font-bold">Official itemized Gate-out quotation</h4>
             {quote.lines?.length ? quote.lines.map((line,index)=><div key={index} className="flex justify-between gap-3 border-b py-2 last:border-b-0"><span>{line.description} × {line.quantity}<span className="block text-xs text-muted-foreground">{peso(line.unitRate)} per unit</span></span><span className="shrink-0 font-semibold">{peso(line.amount)}</span></div>) : <p className="text-amber-800">No charge lines returned. Please contact the terminal administrator.</p>}
-            <div className="mt-2 flex justify-between border-t pt-3"><span>Subtotal</span><strong>{peso(quote.subtotal)}</strong></div>
+            <div className="mt-2 flex justify-between border-t pt-3"><span>Subtotal (before VAT)</span><strong>{peso(quote.subtotal)}</strong></div>
             <div className="flex justify-between"><span>VAT ({quote.vatRate}%)</span><strong>{peso(quote.vat)}</strong></div>
             <div className="mt-1 flex justify-between text-lg font-extrabold"><span>Total payable</span><span>{peso(quote.total)}</span></div>
           </div> : <p className="rounded-xl bg-muted p-3 text-sm text-muted-foreground">{date && time ? 'The official Gate-out quotation is unavailable. Review the billing warning above.' : 'Select a future date and available hour to calculate all charges, VAT, and total payment.'}</p>}
